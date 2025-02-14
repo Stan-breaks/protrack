@@ -45,7 +45,7 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX & Alpine.js_
 1. Clone the repo:
 
    ```bash
-   git clone https://github.com/stan-breaks/nimblestack.git
+   git clone https://github.com/Stan-breaks/nimblestack.git
    cd nimblestack
    ```
 
@@ -110,6 +110,6 @@ Found a bug or have an idea? Open an issue or submit a PR!
 
 📜 License
 
-MIT License - see LICENSE.
+MIT License - see [LICENSE](/LICENSE).
 
 Built with ❤️ by Stan Breaks
