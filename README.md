@@ -1,33 +1,35 @@
 # 🚀 NimbleStack
 
-_A Modern Go + Templ + Tailwind CSS Starter Template with HTMX & Alpine.js_
+_A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC_
 
 ![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)  
 ![Templ](https://img.shields.io/badge/Templ-0.2+-blue)  
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3+-06B6D4?logo=tailwind-css)  
 ![HTMX](https://img.shields.io/badge/HTMX-1.9+-red)  
 ![Alpine.js](https://img.shields.io/badge/Alpine.js-3.13+-8BC0D0)
+![sqlc](https://img.shields.io/badge/sqlc-1.25+-brightgreen)  
+![SQLite](https://img.shields.io/badge/SQLite-3+-003B57?logo=sqlite)
 
-**NimbleStack** is a lightning-fast, full-stack starter template designed for developers who want to build modern web apps with minimal boilerplate. It combines Go's performance, Templ's server-side rendering, Tailwind CSS's styling magic, and the dynamic interactivity of HTMX + Alpine.js.
+**NimbleStack** is a lightning-fast, full-stack starter template designed for developers who want to build modern web apps with minimal boilerplate. Features **SQLite** + **SQLC** for embedded database magic! ✨
 
 ---
 
 ## 🌟 Features
 
-- **Go Backend**: Blazing-fast API and server logic with Go.
-- **Templ Templates**: Clean, type-safe HTML templating for server-rendered UIs.
-- **Tailwind CSS**: Utility-first styling with JIT compilation for rapid design.
-- **HTMX**: Dynamic content updates without writing JavaScript.
-- **Alpine.js**: Lightweight reactivity for client-side interactions.
-- **Zero JS Framework Overhead**: Keep bundles tiny and performance high.
+- **Go Backend**: Blazing-fast API and server logic with Go
+- **SQLite + SQLC**: Type-safe database access with single-file storage
+- **Templ Templates**: Clean, type-safe HTML templating
+- **Tailwind CSS**: JIT-compiled utility-first CSS
+- **HTMX + Alpine.js**: Dynamic UI without JavaScript fatigue
 
 ---
 
 ## 🛠️ Why NimbleStack?
 
-- **Rapid Development**: Start coding features instead of configuring tools.
-- **Minimal Boilerplate**: Focus on your app, not setup.
-- **Full-Stack Ready**: Backend + frontend in one cohesive stack.
+- **Zero Deployment Hassle**: Single binary with embedded SQLite database
+- **Full-Stack Type Safety**: SQLC → Go → Templ pipeline
+- **Local Development Bliss**: No database servers required
+- **HTMX Simplicity**: Partial reloads without React complexity
 - **Modern UI/UX**: Tailwind + Alpine.js for polished, responsive interfaces.
 
 ---
@@ -38,7 +40,7 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX & Alpine.js_
 
 - Go 1.21+
 - Node.js 18+ & pnpm
-- Git
+- SQLC: `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
 
 ### Installation
 
@@ -53,63 +55,142 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX & Alpine.js_
 
    ```bash
    pnpm install
-   pnpm run build:css
+   go mod tidy
+   go get modernc.org/sqlite  # SQLite driver
    ```
 
-3. Generate Templ views:
+3. Generate code:
 
    ```bash
-   temp generate ./views/
+   templ generate ./views/
+   sqlc generate
    ```
 
-4. Start the dev server:
-
+4. Start server:
    ```bash
-   go run .
+   go run main.go
    ```
 
-   Open http://localhost:8080 in your browser.
+---
 
-🛠️ Development Workflow
-
-- Run the server: go run main.go (auto-reload with air if configured)
-
-- Build Tailwind: pnpm build:css (or pnpm watch:css for live updates)
-
-- Templ Templates: Write .templ files in views/ and regenerate with templ generate ./views/
-
-- HTMX + Alpine.js: Add interactivity directly in HTML with hx-\* attributes and x-data
-
-📂 Project Structure
+## 📂 Project Structure
 
 ```
 nimblestack/
-├── public/ # Static assets (Tailwind CSS, Alpine.js, HTMX)
-├── views/ # Templ components and pages
-├── handlers/ # Go HTTP handlers
-├── go.mod # Go dependencies
-├── package.json # Frontend tooling
-├── main.go # Server entrypoint
-└── tailwind.config.js # tailwind css config
-
+├── db/
+│   ├── migrations/   # SQLite schema versions
+│   ├── query/        # SQL query files (.sql)
+│   └── sqlc/         # Generated Go models
+├── public/           # Static assets
+├── views/            # Templ components
+├── handlers/         # HTTP handlers
+├── sqlc.yaml         # SQLC configuration
+└── main.go           # Server entry
 ```
 
-📈 Roadmap
+---
 
-- Add authentication example (Go + HTMX)
+## 🔌 Database Workflow (SQLite + SQLC)
 
-- Dockerize for easy deployment
+### 1. Create Migration
 
-- Prebuilt UI components (modals, forms, etc.)
+`db/migrations/001_users.up.sql`:
 
-- Deployment guides for Fly.io/Vercel
+```sql
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-🤝 Contributing
+### 2. Write Queries
 
-Found a bug or have an idea? Open an issue or submit a PR!
+`db/query/users.sql`:
 
-📜 License
+```sql
+-- name: CreateUser :one
+INSERT INTO users (name, email)
+VALUES (?, ?)
+RETURNING *;
 
-MIT License - see [LICENSE](/LICENSE).
+-- name: GetUserByEmail :one
+SELECT * FROM users
+WHERE email = ?;
+```
 
-Built with ❤️ by Stan Breaks
+### 3. Generate Code
+
+```bash
+sqlc generate
+```
+
+### 4. Use in Handler
+
+`handlers/users.go`:
+
+```go
+   func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
+    // Get DB connection
+    db, _ := sql.Open("sqlite", "./data.db?cache=shared&_fk=true")
+    defer db.Close()
+
+    queries := db.NewQueries()
+
+    // Type-safe database operation
+    user, err := queries.CreateUser(r.Context(),
+        db.CreateUserParams{
+            Name: r.FormValue("name"),
+            Email: r.FormValue("email"),
+        })
+
+    if err != nil {
+        http.Error(w, "Database error", 500)
+        return
+    }
+
+    // Render response with Templ
+    components.UserCard(user).Render(r.Context(), w)
+   }
+```
+
+---
+
+## 🛠️ SQLite Pro Tips
+
+1. **Connection String**: Use these parameters for better performance:
+
+   ```go
+   "file:data.db?cache=shared&_journal=WAL&_fk=true"
+   ```
+
+   - `cache=shared`: Better concurrency
+   - `_journal=WAL`: Write-Ahead Logging
+   - `_fk=true`: Enable foreign keys
+
+2. **Batch Inserts**: Use SQLC's `:execresult` for bulk operations
+3. **Migrations**: Coming soon - we'll add goose/dbmate support!
+
+---
+
+## 📈 Roadmap
+
+- [ ] Add SQLite migration tool
+- [ ] HTMX CRUD example with optimistic UI
+- [ ] SQLite connection pool benchmarks
+- [ ] ARM64 build support
+
+---
+
+## 📚 Learning Resources
+
+- [SQLC SQLite Guide](https://docs.sqlc.dev/en/latest/howto/sqlite.html)
+- [Modern SQLite Driver Docs](https://pkg.go.dev/modernc.org/sqlite)
+- [HTMX Patterns](https://htmx.org/examples/)
+
+---
+
+## License
+
+MIT © [Stan-breaks] | Made with ❤️ for fast web apps
