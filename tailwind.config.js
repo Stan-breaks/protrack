@@ -1,5 +1,5 @@
 module.exports = {
-  content: ["./**/*.html", "./**/*.templ", "./**/*.go"],
+  content: ["./views/*.templ"],
   theme: { extend: {} },
   plugins: [],
 };
