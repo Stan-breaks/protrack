@@ -4,8 +4,6 @@ import (
 	"log"
 	"net/http"
 	"nimblestack/views"
-
-	"github.com/a-h/templ"
 )
 
 func main() {
