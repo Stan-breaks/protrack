@@ -1,12 +1,9 @@
 version: "2"
-cloud:
-    organization: ""
-    project: ""
-    hostname: ""
-servers: []
-sql: []
-overrides:
-    go: null
-plugins: []
-rules: []
-options: {}
+sql:
+  - engine: "sqlite"
+    queries: "db/sqlc/query.sql"
+    schema: "db/sqlc/schema.sql"
+    gen:
+      go:
+        package: "database"
+        out: "database"
