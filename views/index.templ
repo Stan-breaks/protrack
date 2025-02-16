@@ -1,0 +1,64 @@
+package views
+
+templ Index() {
+@Base("Home - Welcome", mainContent())
+}
+
+templ mainContent() {
+<div class="space-y-12 px-4 md:px-8 lg:px-16">
+  <div class="mt-8">
+    <h3 class="text-2xl font-semibold text-center text-gray-800">Interactive Counter</h3>
+    <div class="mt-4 flex justify-center">
+      @Counter()
+    </div>
+  </div>
+  <!-- Getting Started Section -->
+  <div class="p-6 bg-white rounded-lg shadow-lg text-center">
+    <h3 class="text-2xl font-semibold text-gray-800">Getting Started</h3>
+    <p class="mt-3 text-gray-600">
+      Explore the code, update components, and build something amazing with our modern stack.
+    </p>
+  </div>
+  <!-- Technology Stack Overview -->
+  <div class="p-6 bg-gray-50 rounded-lg shadow-lg">
+    <h3 class="text-2xl font-semibold text-center text-gray-800 mb-6">Our Technology Stack</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div class="p-4 bg-white rounded-lg shadow text-center">
+        <img src="/static/go.svg" alt="Go" class="w-16 h-16 mx-auto" />
+        <h4 class="mt-3 text-xl font-medium text-gray-800">Go</h4>
+        <p class="mt-2 text-gray-600 text-sm">Fast and efficient backend language.</p>
+      </div>
+      <div class="p-4 bg-white rounded-lg shadow text-center">
+        <img src="/static/templ.svg" alt="Templ" class="w-16 h-16 mx-auto" />
+        <h4 class="mt-3 text-xl font-medium text-gray-800">Templ</h4>
+        <p class="mt-2 text-gray-600 text-sm">Type-safe templating for Go.</p>
+      </div>
+      <div class="p-4 bg-white rounded-lg shadow text-center">
+        <img src="/static/tailwind.svg" alt="Tailwind CSS" class="w-16 h-16 mx-auto" />
+        <h4 class="mt-3 text-xl font-medium text-gray-800">Tailwind CSS</h4>
+        <p class="mt-2 text-gray-600 text-sm">Utility-first CSS framework.</p>
+      </div>
+      <div class="p-4 bg-white rounded-lg shadow text-center">
+        <img src="/static/htmx_logo.1.png" alt="HTMX" class="w-16 h-16 mx-auto" />
+        <h4 class="mt-3 text-xl font-medium text-gray-800">HTMX</h4>
+        <p class="mt-2 text-gray-600 text-sm">Dynamic, partial page updates.</p>
+      </div>
+      <div class="p-4 bg-white rounded-lg shadow text-center">
+        <img src="/static/alpine.svg" alt="Alpine.js" class="w-16 h-16 mx-auto" />
+        <h4 class="mt-3 text-xl font-medium text-gray-800">Alpine.js</h4>
+        <p class="mt-2 text-gray-600 text-sm">Lightweight interactivity.</p>
+      </div>
+      <div class="p-4 bg-white rounded-lg shadow text-center">
+        <img src="/static/sqlc.png" alt="sqlc" class="w-16 h-16 mx-auto" />
+        <h4 class="mt-3 text-xl font-medium text-gray-800">sqlc</h4>
+        <p class="mt-2 text-gray-600 text-sm">Generates type-safe Go code from SQL.</p>
+      </div>
+      <div class="p-4 bg-white rounded-lg shadow text-center">
+        <img src="/static/sqlite.svg" alt="SQLite" class="w-16 h-16 mx-auto" />
+        <h4 class="mt-3 text-xl font-medium text-gray-800">SQLite</h4>
+        <p class="mt-2 text-gray-600 text-sm">Embedded SQL database.</p>
+      </div>
+    </div>
+  </div>
+</div>
+}
