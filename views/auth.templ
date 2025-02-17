@@ -1,0 +1,86 @@
+package views
+
+templ Auth() {
+@Base("User Authentication", authPage())
+}
+
+templ authPage() {
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-r from-gray-100 to-gray-50">
+  <!-- Alpine manages the active tab -->
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md" x-data="{ tab: 'login' }">
+    <!-- Tabs Header -->
+    <div class="flex">
+      <button @click="tab = 'login'"
+        :class="{'border-b-2 border-blue-600 text-blue-600': tab==='login', 'text-gray-600': tab!=='login'}"
+        class="w-1/2 py-3 text-center font-semibold">
+        Login
+      </button>
+      <button @click="tab = 'register'"
+        :class="{'border-b-2 border-blue-600 text-blue-600': tab==='register', 'text-gray-600': tab!=='register'}"
+        class="w-1/2 py-3 text-center font-semibold">
+        Register
+      </button>
+    </div>
+    <!-- Tabs Content -->
+    <div class="p-6">
+      <div x-show="tab === 'login'" x-transition>
+        @LoginForm()
+      </div>
+      <div x-show="tab === 'register'" x-transition>
+        @RegisterForm()
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+templ LoginForm() {
+<!-- Using htmx to post asynchronously and swap feedback -->
+<form hx-post="/auth/login" hx-target="#login-feedback" hx-swap="innerHTML" method="POST" class="space-y-4">
+  <div>
+    <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+    <input id="login-email" name="email" type="email" required
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200" />
+  </div>
+  <div>
+    <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+    <input id="login-password" name="password" type="password" required
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200" />
+  </div>
+  <div>
+    <button type="submit"
+      class="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      Login
+    </button>
+  </div>
+  <div id="login-feedback"></div>
+</form>
+}
+
+templ RegisterForm() {
+<!-- Using htmx for asynchronous submission on registration -->
+<form hx-post="/auth/register" hx-target="#register-feedback" hx-swap="innerHTML" method="POST" class="space-y-4">
+  <div>
+    <label for="reg-name" class="block text-sm font-medium text-gray-700">Name</label>
+    <input id="reg-name" name="name" type="text" required
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200" />
+  </div>
+  <div>
+    <label for="reg-email" class="block text-sm font-medium text-gray-700">Email</label>
+    <input id="reg-email" name="email" type="email" required
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200" />
+  </div>
+  <div>
+    <label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label>
+    <input id="reg-password" name="password" type="password" required
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200" />
+  </div>
+  <div>
+    <button type="submit"
+      class="w-full py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+      Register
+    </button>
+  </div>
+  <div id="register-feedback"></div>
+</form>
+}
