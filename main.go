@@ -1,26 +1,28 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
-	"nimblestack/views"
+	"nimblestack/database"
+	"nimblestack/router"
+	"os"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	db, err := sql.Open("sqlite3", "sqlite.db")
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
 
-	// Serve static files from the "public" directory
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
+	defer db.Close()
+	queries := database.New(db)
 
-	// Handle the root route
-
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Render the Index template from the views package.
-		if err := views.Index().Render(r.Context(), w); err != nil {
-			log.Println("Error rendering view:", err)
-		}
-	})
+	jwtSercet := os.Getenv("API_TOKEN")
+	route := router.NewRouter(queries, []byte(jwtSercet))
 
 	log.Println("NimbleStack server started on :8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServe(":8080", route.Handler()))
 }
