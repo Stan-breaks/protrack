@@ -8,9 +8,13 @@ templ Base(title string, body templ.Component) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{ title }</title>
-  <link rel="stylesheet" href="/static/tailwind.css" />
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-  <script src="https://unpkg.com/alpinejs" defer></script>
+  <link rel="stylesheet" href="/static/style.css" />
+  <!--htmx core-->
+  <script src="https://unpkg.com/htmx.org@2.0.4"
+    integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+    crossorigin="anonymous"></script>
+  <!-- Alpine Core -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="bg-gradient-to-br from-indigo-200 to-blue-200 min-h-screen flex flex-col">
