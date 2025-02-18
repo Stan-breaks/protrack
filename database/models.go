@@ -4,6 +4,10 @@
 
 package database
 
+import (
+	"database/sql"
+)
+
 type User struct {
 	ID        int64
 	Username  string
@@ -11,4 +15,5 @@ type User struct {
 	Firstname string
 	Lastname  string
 	Password  string
+	CreatedAt sql.NullTime
 }
