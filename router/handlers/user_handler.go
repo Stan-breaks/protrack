@@ -40,10 +40,15 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error rendering view:", err)
 		}
 	} else {
-		var req loginRequest
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		if err := r.ParseForm(); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			log.Printf("form error: %v\n", err)
 			return
+
+		}
+		req := loginRequest{
+			Email:    r.FormValue("email"),
+			Password: r.FormValue("password"),
 		}
 
 		ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
@@ -94,11 +99,18 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error rendering view:", err)
 		}
 	} else {
-		var req database.CreateUserParams
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+
+		if err := r.ParseForm(); err != nil {
 			http.Error(w, "Invalid request body", http.StatusBadRequest)
-			log.Printf("json error: %v\n", err)
+			log.Printf("form error: %v\n", err)
 			return
+		}
+		req := database.CreateUserParams{
+			Username:  r.FormValue("Username"),
+			Email:     r.FormValue("email"),
+			Firstname: r.FormValue("firstname"),
+			Lastname:  r.FormValue("lastname"),
+			Password:  r.FormValue("password"),
 		}
 
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
