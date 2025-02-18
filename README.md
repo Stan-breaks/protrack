@@ -29,7 +29,7 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC
 - **Zero Deployment Hassle**: Single binary with embedded SQLite database
 - **Full-Stack Type Safety**: SQLC → Go → Templ pipeline
 - **Local Development Bliss**: No database servers required
-- **HTMX Simplicity**: Partial reloads without React complexity
+- **HTMX+Alpine.js Simplicity**: Partial reloads without React complexity
 - **Modern UI/UX**: Tailwind + Alpine.js for polished, responsive interfaces.
 
 ---
@@ -40,7 +40,8 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC
 
 - Go 1.21+
 - Node.js 18+ & pnpm
-- SQLC: `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
+- Tailwind
+- SQLC
 
 ### Installation
 
@@ -77,10 +78,8 @@ _A Modern Go + Templ + Tailwind CSS Starter Template with HTMX, Alpine.js & SQLC
 
 ```
 nimblestack/
-├── db/
-│   ├── migrations/   # SQLite schema versions
-│   ├── query/        # SQL query files (.sql)
-│   └── sqlc/         # Generated Go models
+├── database/         # Generated Go models
+├── sqlc/             # sqlc schema and queries
 ├── public/           # Static assets
 ├── views/            # Templ components
 ├── handlers/         # HTTP handlers
@@ -133,7 +132,7 @@ sqlc generate
 ```go
    func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
     // Get DB connection
-    db, _ := sql.Open("sqlite", "./data.db?cache=shared&_fk=true")
+    db, _ := sql.Open("sqlite3", ".sqlite.db")
     defer db.Close()
 
     queries := db.NewQueries()
@@ -154,23 +153,6 @@ sqlc generate
     components.UserCard(user).Render(r.Context(), w)
    }
 ```
-
----
-
-## 🛠️ SQLite Pro Tips
-
-1. **Connection String**: Use these parameters for better performance:
-
-   ```go
-   "file:data.db?cache=shared&_journal=WAL&_fk=true"
-   ```
-
-   - `cache=shared`: Better concurrency
-   - `_journal=WAL`: Write-Ahead Logging
-   - `_fk=true`: Enable foreign keys
-
-2. **Batch Inserts**: Use SQLC's `:execresult` for bulk operations
-3. **Migrations**: Coming soon - we'll add goose/dbmate support!
 
 ---
 
