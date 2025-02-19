@@ -25,10 +25,12 @@ func NewRouter(queries *database.Queries, jwtSercet []byte) *Router {
 func (r *Router) setupRoutes() {
 	userHandler := handlers.NewUserHandler(r.queries, r.jwtSercet)
 	rootHandler := handlers.RootHandler
+	dashHandler := handlers.DashHandler
 	r.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
 	r.mux.HandleFunc("/", rootHandler)
 	r.mux.HandleFunc("/auth/login", userHandler.Login)
 	r.mux.HandleFunc("/auth/register", userHandler.RegisterUser)
+	r.mux.HandleFunc("/dashboard", dashHandler)
 }
 
 func (r *Router) Handler() http.Handler {
