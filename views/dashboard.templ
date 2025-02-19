@@ -1,0 +1,62 @@
+package views
+
+templ Dash() {
+@Base("Dashboard", dashPage())
+}
+
+templ dashPage() {
+<div class="min-h-screen flex bg-gray-100">
+  <!-- Sidebar Navigation -->
+  <aside class="w-64 bg-indigo-700 text-white p-6">
+    <h2 class="text-2xl font-bold mb-8">Dashboard</h2>
+    <nav>
+      <ul class="space-y-4">
+        <li><a href="#" class="block hover:bg-indigo-600 p-2 rounded">Home</a></li>
+        <li><a href="#" class="block hover:bg-indigo-600 p-2 rounded">Analytics</a></li>
+        <li><a href="#" class="block hover:bg-indigo-600 p-2 rounded">Reports</a></li>
+        <li><a href="#" class="block hover:bg-indigo-600 p-2 rounded">Settings</a></li>
+      </ul>
+    </nav>
+  </aside>
+  <!-- Main Content Area -->
+  <main class="flex-1 p-10" x-data="{ refresh: false }">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Welcome, Admin!</h1>
+      <button @click="refresh = !refresh"
+        class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition">
+        Refresh
+      </button>
+    </div>
+    <!-- Stat Cards with dummy data -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Card 1: Total Users -->
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <p class="text-gray-500">Total Users</p>
+        <p class="text-3xl font-bold text-gray-800">1,245</p>
+      </div>
+      <!-- Card 2: Monthly Sales -->
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <p class="text-gray-500">Monthly Sales</p>
+        <p class="text-3xl font-bold text-gray-800">$8,320</p>
+      </div>
+      <!-- Card 3: Active Sessions -->
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <p class="text-gray-500">Active Sessions</p>
+        <p class="text-3xl font-bold text-gray-800">87</p>
+      </div>
+      <!-- Card 4: Uptime -->
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <p class="text-gray-500">Uptime</p>
+        <p class="text-3xl font-bold text-gray-800">99.9%</p>
+      </div>
+    </div>
+    <!-- Chart Placeholder -->
+    <div class="bg-white shadow-lg rounded-lg p-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Sales Trend</h2>
+      <div class="w-full h-64 bg-gray-200 flex items-center justify-center rounded">
+        <span class="text-gray-500">[Chart Placeholder]</span>
+      </div>
+    </div>
+  </main>
+</div>
+}
