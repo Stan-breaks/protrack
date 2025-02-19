@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -81,13 +80,17 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{
-			"token":   tokenString,
-			"message": "Login successful",
-			"email":   user.Email,
+		http.SetCookie(w, &http.Cookie{
+			Name:     "auth_token",
+			Value:    tokenString,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true, // ensure HTTPS in production
+			SameSite: http.SameSiteLaxMode,
 		})
 
+		w.Header().Set("HX-Redirect", "/dashboard")
+		w.WriteHeader(http.StatusOK)
 	}
 
 }
@@ -153,12 +156,17 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]string{
-			"token":   tokenString,
-			"message": "Login successful",
-			"email":   req.Email,
+		http.SetCookie(w, &http.Cookie{
+			Name:     "auth_token",
+			Value:    tokenString,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true, // ensure HTTPS in production
+			SameSite: http.SameSiteLaxMode,
 		})
+
+		w.Header().Set("HX-Redirect", "/dashboard")
+		w.WriteHeader(http.StatusOK)
 	}
 
 }
