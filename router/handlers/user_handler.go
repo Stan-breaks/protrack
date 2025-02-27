@@ -85,7 +85,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 			Value:    tokenString,
 			Path:     "/",
 			HttpOnly: true,
-			Secure:   true, // ensure HTTPS in production
+			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
 
@@ -161,7 +161,7 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 			Value:    tokenString,
 			Path:     "/",
 			HttpOnly: true,
-			Secure:   true, // ensure HTTPS in production
+			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
 
