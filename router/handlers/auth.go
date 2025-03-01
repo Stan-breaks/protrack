@@ -24,7 +24,7 @@ func NewUserHandler(queries *database.Queries, jwtSecret []byte) *UserHandler {
 	return &UserHandler{
 		Queries:   queries,
 		jwtSecret: jwtSecret,
-		tokenExp:  24 * time.Hour,
+		tokenExp:  time.Hour,
 	}
 }
 
@@ -85,6 +85,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 			Value:    tokenString,
 			Path:     "/",
 			HttpOnly: true,
+			Expires:  time.Now().Add(h.tokenExp),
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
