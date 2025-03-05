@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"nimblestack/database"
 	"nimblestack/router/handlers"
+	"nimblestack/router/middleware"
 )
 
 type Router struct {
@@ -24,13 +25,16 @@ func NewRouter(queries *database.Queries, jwtSercet []byte) *Router {
 
 func (r *Router) setupRoutes() {
 	userHandler := handlers.NewUserHandler(r.queries, r.jwtSercet)
-	rootHandler := handlers.RootHandler
-	dashHandler := handlers.DashHandler
+	dashHandler := handlers.NewDashboardHandler(r.queries)
+
 	r.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
-	r.mux.HandleFunc("/", rootHandler)
+	r.mux.HandleFunc("/", handlers.IndexHandler)
 	r.mux.HandleFunc("/auth/login", userHandler.Login)
 	r.mux.HandleFunc("/auth/register", userHandler.RegisterUser)
-	r.mux.HandleFunc("/dashboard", dashHandler)
+	r.mux.HandleFunc("/dashboard", middleware.CheckAuth(dashHandler.DashHandler, r.jwtSercet))
+	r.mux.HandleFunc("/admin", middleware.CheckAuth(dashHandler.AuthDash, r.jwtSercet))
+	r.mux.HandleFunc("/api/users/{id}/delete", dashHandler.DeleteUser)
+	r.mux.HandleFunc("/api/users/{id}/update", dashHandler.UpdateUser)
 }
 
 func (r *Router) Handler() http.Handler {
