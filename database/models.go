@@ -8,6 +8,14 @@ import (
 	"database/sql"
 )
 
+type SqliteSchema struct {
+	Type     string
+	Name     string
+	TblName  string
+	Rootpage int64
+	Sql      string
+}
+
 type User struct {
 	ID        int64
 	Username  string
