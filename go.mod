@@ -9,4 +9,7 @@ require (
 
 require github.com/mattn/go-sqlite3 v1.14.24
 
-require github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+require (
+	github.com/go-chi/chi v1.5.5 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+)
