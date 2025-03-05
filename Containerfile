@@ -1,3 +1,4 @@
+
 #############################
 # Stage 1: Build Frontend Assets
 #############################
@@ -54,4 +55,3 @@ EXPOSE 8080
 
 # Set the entrypoint to run your binary
 ENTRYPOINT ["/nimblestack"]
-
