@@ -36,18 +36,7 @@ func (h *DashboardHandler) AuthDash(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error with getting tables: ", err)
 	}
-	tableMap := make(map[string]any)
-	for _, table := range tables {
-		switch table {
-		case "users":
-			users, err := h.Queries.GetAllUsers(ctx)
-			if err != nil || users == nil {
-				log.Println("Error with getting tables: ", err)
-			}
-			tableMap["users"] = users
-		}
-	}
-	if err := views.AdminDashboard(tableMap).Render(r.Context(), w); err != nil {
+	if err := views.AdminDashboard(tables).Render(r.Context(), w); err != nil {
 		log.Println("Error rendering view: ", err)
 	}
 }
