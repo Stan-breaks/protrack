@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 	"nimblestack/database"
+	"nimblestack/router/apis"
 	"nimblestack/router/handlers"
 	"nimblestack/router/middleware"
 )
@@ -28,13 +29,15 @@ func (r *Router) setupRoutes() {
 	r.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
 	// serving the index page
 	r.mux.HandleFunc("/", handlers.IndexHandler)
-	// serving auth pages
-	r.mux.HandleFunc("/login", handlers.Login)
-	r.mux.HandleFunc("/register", handlers.Register)
+	// serving auth page
+	r.mux.HandleFunc("/auth", handlers.Auth)
 	//serving protected pages
-	dashHandler := handlers.NewDashboardHandler(r.queries)
-	r.mux.HandleFunc("/dashboard", middleware.CheckAuth(dashHandler.DashHandler, r.jwtSercet))
-	r.mux.HandleFunc("/admin", middleware.CheckAuth(dashHandler.AuthDash, r.jwtSercet))
+	r.mux.HandleFunc("/dashboard", middleware.CheckAuth(handlers.DashHandler, r.jwtSercet))
+	r.mux.HandleFunc("/admin", middleware.CheckAuth(handlers.AuthDash, r.jwtSercet))
+	// apis section
+	authHander := apis.NewAuthApi(r.queries, r.jwtSercet)
+	r.mux.HandleFunc("/api/login", authHander.Login)
+	r.mux.HandleFunc("/api/register", authHander.Reqister)
 }
 
 func (r *Router) Handler() http.Handler {
