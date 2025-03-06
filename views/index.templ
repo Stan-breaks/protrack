@@ -1,15 +1,51 @@
 package views
 
-templ Index() {
-@Base("Home - Welcome", mainContent())
+import "nimblestack/views/components"
+
+type techStack struct {
+name string
+image string
+description string
 }
 
-templ mainContent() {
+func list() []techStack {
+var list []techStack
+list = append(list, techStack{name: "Go", image: "/static/go.svg", description: "Fast and efficient backend language."})
+list = append(list, techStack{name: "Templ", image: "/static/templ.svg", description: "Type-safe templating for Go."})
+list = append(list, techStack{
+name: "Tailwind CSS",
+image: "/static/tailwind.svg",
+description: "Utility-first CSS framework."})
+list = append(list, techStack{
+name: "HTMX",
+image: "/static/htmx_logo.1.png",
+description: "Dynamic, partial page updates."})
+list = append(list, techStack{
+name: "Alpine.js",
+image: "/static/alpine.svg",
+description: "Lightweight interactivity."})
+list = append(list, techStack{
+name: "sqlc",
+image: "/static/sqlc.png",
+description: "Generates type-safe Go code from SQL."})
+list = append(list, techStack{
+name: "SQLite",
+image: "/static/sqlite.svg",
+description: "Embedded SQL database.",
+})
+return list
+}
+
+templ Index() {
+@Base("Home - Welcome", mainContent(list()))
+}
+
+templ mainContent(list []techStack) {
 <div class="space-y-12 px-4 md:px-8 lg:px-16">
   <div class="mt-8">
     <h3 class="text-2xl font-semibold text-center text-gray-800">Interactive Counter</h3>
     <div class="mt-4 flex justify-center">
-      @Counter()
+      @components.Counter()
     </div>
   </div>
   <!-- Getting Started Section -->
@@ -23,51 +59,12 @@ templ mainContent() {
   <div class="p-6 bg-gray-50 rounded-lg shadow-lg">
     <h3 class="text-2xl font-semibold text-center text-gray-800 mb-6">Our Technology Stack</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <div class="p-4 bg-white rounded-lg shadow text-center">
-        <img src="/static/go.svg" alt="Go" class="w-16 h-16 mx-auto" />
-        <h4 class="mt-3 text-xl font-medium text-gray-800">Go</h4>
-        <p class="mt-2 text-gray-600 text-sm">Fast and efficient backend language.</p>
-      </div>
-      <div class="p-4 bg-white rounded-lg shadow text-center">
-        <img src="/static/templ.svg" alt="Templ" class="w-16 h-16 mx-auto" />
-        <h4 class="mt-3 text-xl font-medium text-gray-800">Templ</h4>
-        <p class="mt-2 text-gray-600 text-sm">Type-safe templating for Go.</p>
-      </div>
-      <div class="p-4 bg-white rounded-lg shadow text-center">
-        <img src="/static/tailwind.svg" alt="Tailwind CSS" class="w-16 h-16 mx-auto" />
-        <h4 class="mt-3 text-xl font-medium text-gray-800">Tailwind CSS</h4>
-        <p class="mt-2 text-gray-600 text-sm">Utility-first CSS framework.</p>
-      </div>
-      <div class="p-4 bg-white rounded-lg shadow text-center">
-        <img src="/static/htmx_logo.1.png" alt="HTMX" class="w-16 h-16 mx-auto" />
-        <h4 class="mt-3 text-xl font-medium text-gray-800">HTMX</h4>
-        <p class="mt-2 text-gray-600 text-sm">Dynamic, partial page updates.</p>
-      </div>
-      <div class="p-4 bg-white rounded-lg shadow text-center">
-        <img src="/static/alpine.svg" alt="Alpine.js" class="w-16 h-16 mx-auto" />
-        <h4 class="mt-3 text-xl font-medium text-gray-800">Alpine.js</h4>
-        <p class="mt-2 text-gray-600 text-sm">Lightweight interactivity.</p>
-      </div>
-      <div class="p-4 bg-white rounded-lg shadow text-center">
-        <img src="/static/sqlc.png" alt="sqlc" class="w-16 h-16 mx-auto" />
-        <h4 class="mt-3 text-xl font-medium text-gray-800">sqlc</h4>
-        <p class="mt-2 text-gray-600 text-sm">Generates type-safe Go code from SQL.</p>
-      </div>
-      <div class="p-4 bg-white rounded-lg shadow text-center">
-        <img src="/static/sqlite.svg" alt="SQLite" class="w-16 h-16 mx-auto" />
-        <h4 class="mt-3 text-xl font-medium text-gray-800">SQLite</h4>
-        <p class="mt-2 text-gray-600 text-sm">Embedded SQL database.</p>
-      </div>
+      for _, l := range list {
+      @components.TechStackItem(l.name, l.image, l.description)
+      }
     </div>
-  </div>
-  <!-- Navigation to Login Page -->
-  <div class="text-center mt-8">
-    <a href="/auth/login">
-      <button type="button"
-        class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition">
-        Go to Login
-      </button>
-    </a>
+    <!-- Navigation to Login Page -->
+    @components.Button("Go to login", "/auth")
   </div>
 </div>
 }
