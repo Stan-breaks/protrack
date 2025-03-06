@@ -24,17 +24,17 @@ func NewRouter(queries *database.Queries, jwtSercet []byte) *Router {
 }
 
 func (r *Router) setupRoutes() {
-	userHandler := handlers.NewUserHandler(r.queries, r.jwtSercet)
-	dashHandler := handlers.NewDashboardHandler(r.queries)
-
+	// serving static files
 	r.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public"))))
+	// serving the index page
 	r.mux.HandleFunc("/", handlers.IndexHandler)
-	r.mux.HandleFunc("/auth/login", userHandler.Login)
-	r.mux.HandleFunc("/auth/register", userHandler.RegisterUser)
+	// serving auth pages
+	r.mux.HandleFunc("/login", handlers.Login)
+	r.mux.HandleFunc("/register", handlers.Register)
+	//serving protected pages
+	dashHandler := handlers.NewDashboardHandler(r.queries)
 	r.mux.HandleFunc("/dashboard", middleware.CheckAuth(dashHandler.DashHandler, r.jwtSercet))
 	r.mux.HandleFunc("/admin", middleware.CheckAuth(dashHandler.AuthDash, r.jwtSercet))
-	r.mux.HandleFunc("/api/users/{id}/delete", dashHandler.DeleteUser)
-	r.mux.HandleFunc("/api/users/{id}/update", dashHandler.UpdateUser)
 }
 
 func (r *Router) Handler() http.Handler {
