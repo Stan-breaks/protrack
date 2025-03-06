@@ -1,16 +1,6 @@
 package views
 
-import "encoding/json"
-
-func mapToJSON(data map[string]any) string {
-jsonBytes, err := json.Marshal(data)
-if err != nil {
-return "{}"
-}
-return string(jsonBytes)
-}
-
-templ AdminDashboard(tableMap map[string]any) {
+templ AdminDashboard(table []string) {
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,135 +9,27 @@ templ AdminDashboard(tableMap map[string]any) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin</title>
   <link rel="stylesheet" href="/static/style.css" />
+  <!--htmx core-->
+  <script src="https://unpkg.com/htmx.org@2.0.4"
+    integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+    crossorigin="anonymous"></script>
   <!-- Alpine Core -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
-<body class="min-h-screen bg-gray-900 text-gray-200" x-data={ `{ table: 'users' , data: ` + mapToJSON(tableMap) + `,
-  editingUser: null, showEditModal: false, async deleteUser(userId) { if(!confirm('Are you sure you want to delete this
-  user?')) return; try { const response=await fetch('/api/users/' + userId + '/delete' , { method: 'DELETE' , headers:
-  {'Content-Type': 'application/json' } }); if(!response.ok) throw new Error('Delete failed');
-  this.data[this.table]=this.data[this.table].filter(u=> u.id !== userId);
-  } catch(err) {
-  alert('Failed to delete user: ' + err.message);
-  }
-  },
-
-  async updateUser() {
-  try {
-  const response = await fetch('/api/users/' + this.editingUser.id + '/update', {
-  method: 'PUT',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({
-  username: this.editingUser.username,
-  password: this.editingUser.password
-  })
-  });
-
-  if(!response.ok) throw new Error('Update failed');
-
-  const index = this.data[this.table].findIndex(u => u.id === this.editingUser.id);
-  if (index !== -1) {
-  this.data[this.table][index] = this.editingUser;
-  }
-  this.showEditModal = false;
-  } catch(err) {
-  alert('Failed to update user: ' + err.message);
-  }
-  }
-  }` }
-  >
+<body class="bg-gradient-to-br from-indigo-200 to-blue-200 min-h-screen flex flex-col" x-data={ `{ table: 'users' }` }>
   <!-- Navbar -->
   <header class="bg-gray-800 shadow-lg">
     <div class="container mx-auto px-4 py-4 flex items-center justify-between">
       <h1 class="text-2xl font-bold text-indigo-400">Dashboard</h1>
       <nav>
-        <ul class="flex space-x-4">
-          for key, _ := range tableMap {
-          <li>
-            <a href="#" class="block p-3 rounded-md transition duration-150 ease-in-out hover:bg-indigo-600"
-              @click.prevent={ "table = '" + key + "'" } :class={ "{ 'bg-indigo-600': table === '" + key + "' }" }>
-              { key }
-            </a>
-          </li>
-          }
-        </ul>
+        <ul class="flex space-x-4"></ul>
       </nav>
     </div>
   </header>
   <!-- Main Content -->
   <main class="container mx-auto px-4 py-8 overflow-auto">
     <h2 class="text-3xl font-semibold mb-6" x-text="'Viewing: ' + table"></h2>
-    <!-- Card view for array data -->
-    <template x-if="Array.isArray(data[table]) && data[table].length">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <template x-for="row in data[table]">
-          <div
-            class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-200">
-            <template x-for="(value, key) in row">
-              <div class="mb-2">
-                <span class="font-bold text-indigo-400" x-text="key + ':'"></span>
-                <span class="ml-2">
-                  <template x-if="typeof value === 'object' && value !== null">
-                    <pre class="bg-gray-700 p-1 rounded text-xs text-gray-300" x-text="JSON.stringify(value, null, 2)">
-                    </pre>
-                  </template>
-                  <template x-if="typeof value !== 'object' || value === null">
-                    <span x-text="key === 'password' ? value.substring(0, 10) + '...' : value"></span>
-                  </template>
-                </span>
-              </div>
-            </template>
-            <!-- Action Buttons -->
-            <div class="mt-4 flex space-x-2">
-              <button @click="editingUser = {...row}; showEditModal = true"
-                class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 rounded-md">
-                Edit
-              </button>
-              <button @click="deleteUser(row.id)" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded-md">
-                Delete
-              </button>
-            </div>
-          </div>
-        </template>
-      </div>
-    </template>
-    <!-- Edit Modal -->
-    <div x-show="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md" @click.away="showEditModal = false">
-        <h3 class="text-xl font-bold mb-4">Edit User</h3>
-        <form @submit.prevent="updateUser()">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Username</label>
-              <input type="text" x-model="editingUser.username"
-                class="w-full px-3 py-2 bg-gray-700 rounded-md text-white" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Password</label>
-              <input type="password" x-model="editingUser.password"
-                class="w-full px-3 py-2 bg-gray-700 rounded-md text-white" />
-            </div>
-            <div class="flex justify-end space-x-2">
-              <button type="button" @click="showEditModal = false"
-                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md">
-                Cancel
-              </button>
-              <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-md">
-                Save
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-    <!-- Fallback for non-array or empty data -->
-    <template x-if="!Array.isArray(data[table]) || data[table].length === 0">
-      <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-md">
-        <pre class="bg-gray-700 p-4 rounded text-xs text-gray-300 overflow-auto max-h-[80vh]"
-          x-text="JSON.stringify(data[table], null, 2)"></pre>
-      </div>
-    </template>
   </main>
 </body>
 
