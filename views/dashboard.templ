@@ -1,5 +1,16 @@
 package views
 
+import "nimblestack/views/components"
+
+func sidebarList() []string {
+var list []string
+list = append(list, "Home")
+list = append(list, "Analytics")
+list = append(list, "Reports")
+list = append(list, "Settings")
+return list
+}
+
 templ Dash() {
 @Base("Dashboard", dashPage())
 }
@@ -7,17 +18,7 @@ templ Dash() {
 templ dashPage() {
 <div class="min-h-screen flex bg-gray-100">
   <!-- Sidebar Navigation -->
-  <aside class="w-64 bg-indigo-700 text-white p-6">
-    <h2 class="text-2xl font-bold mb-8">Dashboard</h2>
-    <nav>
-      <ul class="space-y-4">
-        <li><a href="#" class="block hover:bg-indigo-600 p-2 rounded">Home</a></li>
-        <li><a href="#" class="block hover:bg-indigo-600 p-2 rounded">Analytics</a></li>
-        <li><a href="#" class="block hover:bg-indigo-600 p-2 rounded">Reports</a></li>
-        <li><a href="#" class="block hover:bg-indigo-600 p-2 rounded">Settings</a></li>
-      </ul>
-    </nav>
-  </aside>
+  @components.SideBar("Dashboard", sidebarList())
   <!-- Main Content Area -->
   <main class="flex-1 p-10" x-data="{ refresh: false }">
     <div class="flex justify-between items-center mb-8">
