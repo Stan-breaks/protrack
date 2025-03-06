@@ -21,16 +21,13 @@ func initializeSchema(db *sql.DB) error {
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %v", err)
 	}
-
 	_, err = tx.Exec(string(schemaSQL))
 	if err != nil {
 		return nil
 	}
-
 	if err := tx.Commit(); err != nil {
 		return fmt.Errorf("failed to commit schema: %v", err)
 	}
-
 	return nil
 }
 
