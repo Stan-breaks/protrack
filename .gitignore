@@ -5,3 +5,4 @@ public
 *_templ.go
 sqlite.db
 .env
+tmp
