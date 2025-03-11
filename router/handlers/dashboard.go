@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"nimblestack/views"
-	"time"
 )
 
 func DashHandler(w http.ResponseWriter, r *http.Request) {
