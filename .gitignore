@@ -6,3 +6,4 @@ public
 sqlite.db
 .env
 tmp
+sqlite*
