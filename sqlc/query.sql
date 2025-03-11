@@ -1,4 +1,4 @@
--- name: CreateUser :one
+-- name: CreateStudent :one
 INSERT INTO students(
 email,firstName,lastName,password
 ) VALUES (?,?,?,?) RETURNING *;
