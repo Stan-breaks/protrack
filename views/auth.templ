@@ -45,6 +45,15 @@ templ LoginForm() {
       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200 px-4 py-2" />
   </div>
   <div>
+    <label for="login-role" class="block text-sm font-medium text-gray-700">Role</label>
+    <select name="login-role"
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200 px-4 py-2">
+      <option value="student">Student</option>
+      <option value="coordinate">coordinate</option>
+      <option value="supervisor">supervisor</option>
+    </select>
+  </div>
+  <div>
     <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
     <input id="login-password" name="password" type="password" required
       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200 px-4 py-2" />
@@ -65,11 +74,6 @@ templ RegisterForm() {
   hx-on::after-request="if(event.detail.xhr.status === 200) { window.location.href = '/dashboard'; }" method="POST"
   method="POST" class="space-y-4">
   <div>
-    <label for="reg-username" class="block text-sm font-medium text-gray-700">User Name</label>
-    <input id="reg-username" name="username" type="text" required
-      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200 px-4 py-2" />
-  </div>
-  <div>
     <label for="reg-email" class="block text-sm font-medium text-gray-700">Email</label>
     <input id="reg-email" name="email" type="email" required
       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200 px-4 py-2" />
@@ -83,6 +87,15 @@ templ RegisterForm() {
     <label for="reg-lastname" class="block text-sm font-medium text-gray-700">Last Name</label>
     <input id="reg-lastname" name="lastname" type="text" required
       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200 px-4 py-2" />
+  </div>
+  <div>
+    <label for="reg-role" class="block text-sm font-medium text-gray-700">Role</label>
+    <select name="reg-role"
+      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-200 px-4 py-2">
+      <option value="student">Student</option>
+      <option value="coordinate">coordinate</option>
+      <option value="supervisor">supervisor</option>
+    </select>
   </div>
   <div>
     <label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label>
