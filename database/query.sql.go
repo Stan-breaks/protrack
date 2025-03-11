@@ -9,98 +9,122 @@ import (
 	"context"
 )
 
-const createUser = `-- name: CreateUser :one
-INSERT INTO users(
-userName,email,firstName,lastName,password
-) VALUES (?,?,?,?,?) RETURNING id, username, email, firstname, lastname, password, created_at
+const createCoordinator = `-- name: CreateCoordinator :one
+INSERT INTO coordinators(
+email,firstName,lastName,password
+) VALUES (?,?,?,?) RETURNING coordinatorid, firstname, lastname, email, password
 `
 
-type CreateUserParams struct {
-	Username  string
+type CreateCoordinatorParams struct {
 	Email     string
 	Firstname string
 	Lastname  string
 	Password  string
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.Username,
+func (q *Queries) CreateCoordinator(ctx context.Context, arg CreateCoordinatorParams) (Coordinator, error) {
+	row := q.db.QueryRowContext(ctx, createCoordinator,
 		arg.Email,
 		arg.Firstname,
 		arg.Lastname,
 		arg.Password,
 	)
-	var i User
+	var i Coordinator
 	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
+		&i.Coordinatorid,
 		&i.Firstname,
 		&i.Lastname,
+		&i.Email,
 		&i.Password,
-		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const deleteUser = `-- name: DeleteUser :exec
-DELETE FROM users WHERE id = ?
+const createSupervisor = `-- name: CreateSupervisor :one
+INSERT INTO supervisors(
+email,firstName,lastName,password
+) VALUES (?,?,?,?) RETURNING supervisorid, firstname, lastname, email, password
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteUser, id)
-	return err
+type CreateSupervisorParams struct {
+	Email     string
+	Firstname string
+	Lastname  string
+	Password  string
 }
 
-const getAllTables = `-- name: GetAllTables :many
-SELECT name FROM sqlite_schema
+func (q *Queries) CreateSupervisor(ctx context.Context, arg CreateSupervisorParams) (Supervisor, error) {
+	row := q.db.QueryRowContext(ctx, createSupervisor,
+		arg.Email,
+		arg.Firstname,
+		arg.Lastname,
+		arg.Password,
+	)
+	var i Supervisor
+	err := row.Scan(
+		&i.Supervisorid,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Email,
+		&i.Password,
+	)
+	return i, err
+}
+
+const createUser = `-- name: CreateUser :one
+INSERT INTO students(
+email,firstName,lastName,password
+) VALUES (?,?,?,?) RETURNING studentid, email, firstname, lastname, password, supervisorid, projectid
 `
 
-func (q *Queries) GetAllTables(ctx context.Context) ([]string, error) {
-	rows, err := q.db.QueryContext(ctx, getAllTables)
+type CreateUserParams struct {
+	Email     string
+	Firstname string
+	Lastname  string
+	Password  string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Student, error) {
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Email,
+		arg.Firstname,
+		arg.Lastname,
+		arg.Password,
+	)
+	var i Student
+	err := row.Scan(
+		&i.Studentid,
+		&i.Email,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Password,
+		&i.Supervisorid,
+		&i.Projectid,
+	)
+	return i, err
+}
+
+const getAllStudents = `-- name: GetAllStudents :many
+SELECT studentid, email, firstname, lastname, password, supervisorid, projectid FROM students
+`
+
+func (q *Queries) GetAllStudents(ctx context.Context) ([]Student, error) {
+	rows, err := q.db.QueryContext(ctx, getAllStudents)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []string
+	var items []Student
 	for rows.Next() {
-		var name string
-		if err := rows.Scan(&name); err != nil {
-			return nil, err
-		}
-		items = append(items, name)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, username, email, firstname, lastname, password, created_at FROM users
-`
-
-func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getAllUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
+		var i Student
 		if err := rows.Scan(
-			&i.ID,
-			&i.Username,
+			&i.Studentid,
 			&i.Email,
 			&i.Firstname,
 			&i.Lastname,
 			&i.Password,
-			&i.CreatedAt,
+			&i.Supervisorid,
+			&i.Projectid,
 		); err != nil {
 			return nil, err
 		}
@@ -115,38 +139,88 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
-const getUser = `-- name: GetUser :one
-SELECT id, username, email, firstname, lastname, password, created_at FROM users WHERE email =? LIMIT 1
+const getAllSupervisors = `-- name: GetAllSupervisors :many
+SELECT supervisorid, firstname, lastname, email, password FROM supervisors
 `
 
-func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, email)
-	var i User
+func (q *Queries) GetAllSupervisors(ctx context.Context) ([]Supervisor, error) {
+	rows, err := q.db.QueryContext(ctx, getAllSupervisors)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Supervisor
+	for rows.Next() {
+		var i Supervisor
+		if err := rows.Scan(
+			&i.Supervisorid,
+			&i.Firstname,
+			&i.Lastname,
+			&i.Email,
+			&i.Password,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getCoordinator = `-- name: GetCoordinator :one
+SELECT coordinatorid, firstname, lastname, email, password FROM coordinators WHERE email =? LIMIT 1
+`
+
+func (q *Queries) GetCoordinator(ctx context.Context, email string) (Coordinator, error) {
+	row := q.db.QueryRowContext(ctx, getCoordinator, email)
+	var i Coordinator
 	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
+		&i.Coordinatorid,
 		&i.Firstname,
 		&i.Lastname,
+		&i.Email,
 		&i.Password,
-		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const updateUser = `-- name: UpdateUser :exec
-UPDATE users 
-SET username = ?, password = ?
-WHERE id = ?
+const getStudent = `-- name: GetStudent :one
+SELECT studentid, email, firstname, lastname, password, supervisorid, projectid FROM students WHERE email =? LIMIT 1
 `
 
-type UpdateUserParams struct {
-	Username string
-	Password string
-	ID       int64
+func (q *Queries) GetStudent(ctx context.Context, email string) (Student, error) {
+	row := q.db.QueryRowContext(ctx, getStudent, email)
+	var i Student
+	err := row.Scan(
+		&i.Studentid,
+		&i.Email,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Password,
+		&i.Supervisorid,
+		&i.Projectid,
+	)
+	return i, err
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.db.ExecContext(ctx, updateUser, arg.Username, arg.Password, arg.ID)
-	return err
+const getSupervisor = `-- name: GetSupervisor :one
+SELECT supervisorid, firstname, lastname, email, password FROM supervisors WHERE email =? LIMIT 1
+`
+
+func (q *Queries) GetSupervisor(ctx context.Context, email string) (Supervisor, error) {
+	row := q.db.QueryRowContext(ctx, getSupervisor, email)
+	var i Supervisor
+	err := row.Scan(
+		&i.Supervisorid,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Email,
+		&i.Password,
+	)
+	return i, err
 }

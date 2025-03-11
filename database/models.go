@@ -8,20 +8,54 @@ import (
 	"database/sql"
 )
 
-type SqliteSchema struct {
-	Type     string
-	Name     string
-	TblName  string
-	Rootpage int64
-	Sql      string
+type Coordinator struct {
+	Coordinatorid int64
+	Firstname     string
+	Lastname      string
+	Email         string
+	Password      string
 }
 
-type User struct {
-	ID        int64
-	Username  string
-	Email     string
-	Firstname string
-	Lastname  string
-	Password  string
-	CreatedAt sql.NullTime
+type Project struct {
+	Projectid   int64
+	Name        string
+	Description sql.NullString
+	CreatedAt   sql.NullTime
+}
+
+type Student struct {
+	Studentid    int64
+	Email        string
+	Firstname    string
+	Lastname     string
+	Password     string
+	Supervisorid sql.NullInt64
+	Projectid    sql.NullInt64
+}
+
+type StudentMilestone struct {
+	ID          int64
+	Studentid   int64
+	Milestoneid int64
+	Status      sql.NullString
+	SubmittedAt sql.NullTime
+}
+
+type Supervisor struct {
+	Supervisorid int64
+	Firstname    string
+	Lastname     string
+	Email        string
+	Password     string
+}
+
+type SupervisorMilestone struct {
+	Milestoneid        int64
+	Supervisorid       int64
+	Name               string
+	Description        sql.NullString
+	SubmissionFilename sql.NullString
+	DueDate            sql.NullTime
+	SequenceOrder      sql.NullInt64
+	CreatedAt          sql.NullTime
 }
