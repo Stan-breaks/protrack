@@ -40,6 +40,39 @@ func (q *Queries) CreateCoordinator(ctx context.Context, arg CreateCoordinatorPa
 	return i, err
 }
 
+const createStudent = `-- name: CreateStudent :one
+INSERT INTO students(
+email,firstName,lastName,password
+) VALUES (?,?,?,?) RETURNING studentid, email, firstname, lastname, password, supervisorid, projectid
+`
+
+type CreateStudentParams struct {
+	Email     string
+	Firstname string
+	Lastname  string
+	Password  string
+}
+
+func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (Student, error) {
+	row := q.db.QueryRowContext(ctx, createStudent,
+		arg.Email,
+		arg.Firstname,
+		arg.Lastname,
+		arg.Password,
+	)
+	var i Student
+	err := row.Scan(
+		&i.Studentid,
+		&i.Email,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Password,
+		&i.Supervisorid,
+		&i.Projectid,
+	)
+	return i, err
+}
+
 const createSupervisor = `-- name: CreateSupervisor :one
 INSERT INTO supervisors(
 email,firstName,lastName,password
@@ -67,39 +100,6 @@ func (q *Queries) CreateSupervisor(ctx context.Context, arg CreateSupervisorPara
 		&i.Lastname,
 		&i.Email,
 		&i.Password,
-	)
-	return i, err
-}
-
-const createUser = `-- name: CreateUser :one
-INSERT INTO students(
-email,firstName,lastName,password
-) VALUES (?,?,?,?) RETURNING studentid, email, firstname, lastname, password, supervisorid, projectid
-`
-
-type CreateUserParams struct {
-	Email     string
-	Firstname string
-	Lastname  string
-	Password  string
-}
-
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (Student, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.Email,
-		arg.Firstname,
-		arg.Lastname,
-		arg.Password,
-	)
-	var i Student
-	err := row.Scan(
-		&i.Studentid,
-		&i.Email,
-		&i.Firstname,
-		&i.Lastname,
-		&i.Password,
-		&i.Supervisorid,
-		&i.Projectid,
 	)
 	return i, err
 }
