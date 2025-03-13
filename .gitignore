@@ -7,4 +7,3 @@ sqlite.db
 .env
 tmp
 sqlite*
-*.js
