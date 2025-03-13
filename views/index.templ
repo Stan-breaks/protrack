@@ -2,69 +2,100 @@ package views
 
 import "nimblestack/views/components"
 
-type techStack struct {
-name string
-image string
-description string
-}
-
-func list() []techStack {
-var list []techStack
-list = append(list, techStack{name: "Go", image: "/static/go.svg", description: "Fast and efficient backend language."})
-list = append(list, techStack{name: "Templ", image: "/static/templ.svg", description: "Type-safe templating for Go."})
-list = append(list, techStack{
-name: "Tailwind CSS",
-image: "/static/tailwind.svg",
-description: "Utility-first CSS framework."})
-list = append(list, techStack{
-name: "HTMX",
-image: "/static/htmx_logo.1.png",
-description: "Dynamic, partial page updates."})
-list = append(list, techStack{
-name: "Alpine.js",
-image: "/static/alpine.svg",
-description: "Lightweight interactivity."})
-list = append(list, techStack{
-name: "sqlc",
-image: "/static/sqlc.png",
-description: "Generates type-safe Go code from SQL."})
-list = append(list, techStack{
-name: "SQLite",
-image: "/static/sqlite.svg",
-description: "Embedded SQL database.",
-})
-return list
-}
-
 templ Index() {
-@Base("Home - Welcome", mainContent(list()))
+@Base("ProTrack", mainContent())
 }
 
-templ mainContent(list []techStack) {
-<div class="space-y-12 px-4 md:px-8 lg:px-16">
-  <div class="mt-8">
-    <h3 class="text-2xl font-semibold text-center text-gray-800">Interactive Counter</h3>
-    <div class="mt-4 flex justify-center">
-      @components.Counter()
+templ mainContent() {
+<div class="space-y-8 px-4 md:px-6 lg:px-8 py-8">
+  <!-- Hero -->
+  <div class="p-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl shadow-xl text-center text-white">
+    <h1 class="text-4xl font-bold">ProTrack</h1>
+    <p class="mt-3 text-lg">Smart academic project management</p>
+    <div class="mt-6">
+      @components.Button("Start Now", "/auth")
     </div>
   </div>
-  <!-- Getting Started Section -->
-  <div class="p-6 bg-white rounded-lg shadow-lg text-center">
-    <h3 class="text-2xl font-semibold text-gray-800">Getting Started</h3>
-    <p class="mt-3 text-gray-600">
-      Explore the code, update components, and build something amazing with our modern stack.
-    </p>
-  </div>
-  <!-- Technology Stack Overview -->
-  <div class="p-6 bg-gray-50 rounded-lg shadow-lg">
-    <h3 class="text-2xl font-semibold text-center text-gray-800 mb-6">Our Technology Stack</h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      for _, l := range list {
-      @components.TechStackItem(l.name, l.image, l.description)
-      }
+  <!-- Key Stats -->
+  <div class="grid grid-cols-3 gap-3">
+    <div class="p-6 bg-gray-400 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow">
+      <span class="text-4xl font-bold text-blue-600">35%</span>
+      <p class="mt-2 text-black">Fewer delays</p>
     </div>
-    <!-- Navigation to Login Page -->
-    @components.Button("Go to login", "/auth")
+    <div class="p-6 bg-gray-400 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow">
+      <span class="text-4xl font-bold text-blue-600">50%</span>
+      <p class="mt-2 text-black">More efficient</p>
+    </div>
+    <div class="p-6 bg-gray-400 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow">
+      <span class="text-4xl font-bold text-blue-600">90%</span>
+      <p class="mt-2 text-black">Satisfaction rate</p>
+    </div>
+  </div>
+  <!-- Problem & Solution Section (Combined) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Problem -->
+    <div class="p-6 bg-gray-400 rounded-xl shadow-md hover:shadow-lg transition-shadow border-l-4 border-red-500">
+      <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" viewBox="0 0 20 20"
+          fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+            clip-rule="evenodd"></path>
+        </svg>
+        Challenges
+      </h2>
+      <ul class="mt-4 space-y-3 text-black">
+        <li class="flex items-start">
+          <span
+            class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-100 text-red-500 mr-2">•</span>
+          <span>58% of universities lack proper project tools</span>
+        </li>
+        <li class="flex items-start">
+          <span
+            class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-100 text-red-500 mr-2">•</span>
+          <span>45% of delays from poor communication</span>
+        </li>
+        <li class="flex items-start">
+          <span
+            class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-100 text-red-500 mr-2">•</span>
+          <span>5-7 weekly hours wasted on administration</span>
+        </li>
+      </ul>
+    </div>
+    <!-- Solution -->
+    <div class="p-6 bg-gray-400 rounded-xl shadow-md hover:shadow-lg transition-shadow border-l-4 border-green-500">
+      <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" viewBox="0 0 20 20"
+          fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd"></path>
+        </svg>
+        Solutions
+      </h2>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="p-3 bg-green-50 rounded-lg text-center hover:bg-green-100 transition-colors">
+          <p class="font-medium text-green-700">Automated tracking</p>
+        </div>
+        <div class="p-3 bg-green-50 rounded-lg text-center hover:bg-green-100 transition-colors">
+          <p class="font-medium text-green-700">Real-time collaboration</p>
+        </div>
+        <div class="p-3 bg-green-50 rounded-lg text-center hover:bg-green-100 transition-colors">
+          <p class="font-medium text-green-700">Performance dashboards</p>
+        </div>
+        <div class="p-3 bg-green-50 rounded-lg text-center hover:bg-green-100 transition-colors">
+          <p class="font-medium text-green-700">Version control</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- CTA -->
+  <div class="p-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-xl text-center text-white">
+    <h2 class="text-2xl font-semibold">Ready to transform your project management?</h2>
+    <p class="mt-2 text-indigo-100">Join universities worldwide improving outcomes with ProTrack</p>
+    <div class="mt-6">
+      @components.Button("Get Started", "/auth")
+    </div>
   </div>
 </div>
 }
