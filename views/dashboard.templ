@@ -28,36 +28,7 @@ templ dashPage() {
         Refresh
       </button>
     </div>
-    <!-- Stat Cards with dummy data -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- Card 1: Total Users -->
-      <div class="bg-white shadow-lg rounded-lg p-6">
-        <p class="text-gray-500">Total Users</p>
-        <p class="text-3xl font-bold text-gray-800">1,245</p>
-      </div>
-      <!-- Card 2: Monthly Sales -->
-      <div class="bg-white shadow-lg rounded-lg p-6">
-        <p class="text-gray-500">Monthly Sales</p>
-        <p class="text-3xl font-bold text-gray-800">$8,320</p>
-      </div>
-      <!-- Card 3: Active Sessions -->
-      <div class="bg-white shadow-lg rounded-lg p-6">
-        <p class="text-gray-500">Active Sessions</p>
-        <p class="text-3xl font-bold text-gray-800">87</p>
-      </div>
-      <!-- Card 4: Uptime -->
-      <div class="bg-white shadow-lg rounded-lg p-6">
-        <p class="text-gray-500">Uptime</p>
-        <p class="text-3xl font-bold text-gray-800">99.9%</p>
-      </div>
-    </div>
-    <!-- Chart Placeholder -->
-    <div class="bg-white shadow-lg rounded-lg p-6">
-      <h2 class="text-xl font-bold text-gray-800 mb-4">Sales Trend</h2>
-      <div class="w-full h-64 bg-gray-200 flex items-center justify-center rounded">
-        <span class="text-gray-500">[Chart Placeholder]</span>
-      </div>
-    </div>
+    <div class="" hx-get="/api/me" hx-trigger="every 10s"></div>
   </main>
 </div>
 }
