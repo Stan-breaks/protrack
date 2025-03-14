@@ -63,7 +63,6 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		log.Printf("form error: %v\n", err)
 		return
-
 	}
 	req := loginRequest{
 		Email:    r.FormValue("email"),
@@ -102,6 +101,7 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteLaxMode,
 		})
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("HX-Redirect", "/student/dashboard")
 	case "supervisor":
 		user, err := h.Queries.GetSupervisor(ctx, req.Email)
 		if err != nil {
@@ -131,6 +131,7 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteLaxMode,
 		})
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("HX-Redirect", "/supervisor/dashboard")
 	case "coordinator":
 		user, err := h.Queries.GetCoordinator(ctx, req.Email)
 		if err != nil {
@@ -160,6 +161,7 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteLaxMode,
 		})
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("HX-Redirect", "/coordinator/dashboard")
 	default:
 		http.Error(w, "Invalid user role", http.StatusBadRequest)
 		log.Printf("invalid user role: %v\n", role)
@@ -225,6 +227,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteLaxMode,
 		})
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("HX-Redirect", "/student/dashboard")
 	case "coordinator":
 		req := database.CreateCoordinatorParams{
 			Email:     r.FormValue("email"),
@@ -270,6 +273,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteLaxMode,
 		})
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("HX-Redirect", "/supervisor/dashboard")
 	case "supervisor":
 		req := database.CreateSupervisorParams{
 			Email:     r.FormValue("email"),
@@ -315,6 +319,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			SameSite: http.SameSiteLaxMode,
 		})
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("HX-Redirect", "/coordinator/dashboard")
 	default:
 		http.Error(w, "Invalid user role", http.StatusBadRequest)
 		log.Printf("invalid user role: %v\n", role)
