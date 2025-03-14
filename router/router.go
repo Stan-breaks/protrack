@@ -33,11 +33,13 @@ func (r *Router) setupRoutes() {
 	r.mux.HandleFunc("/auth", handlers.Auth)
 	//serving protected pages
 	r.mux.HandleFunc("/dashboard", middleware.CheckAuth(handlers.DashHandler, r.jwtSercet))
-	r.mux.HandleFunc("/admin", middleware.CheckAuth(handlers.AuthDash, r.jwtSercet))
 	// apis section
 	authHander := apis.NewAuthApi(r.queries, r.jwtSercet)
 	r.mux.HandleFunc("/api/login", authHander.Login)
 	r.mux.HandleFunc("/api/register", authHander.Reqister)
+
+	userHandler := apis.NewUserApi(r.queries)
+	r.mux.HandleFunc("/api/me", middleware.CheckAuth(userHandler.GetCurrentUSer, r.jwtSercet))
 }
 
 func (r *Router) Handler() http.Handler {
