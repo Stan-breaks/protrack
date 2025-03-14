@@ -42,6 +42,8 @@ func (r *Router) setupRoutes() {
 	// serving protected apis
 	userHandler := apis.NewUserApi(r.queries)
 	r.mux.HandleFunc("/api/me", middleware.CheckAuth(userHandler.GetCurrentUSer, r.jwtSercet))
+	dashHandler := apis.NewDashApi(r.queries)
+	r.mux.HandleFunc("/api/coordinator/students", middleware.CheckAuth(dashHandler.GetAllStudents, r.jwtSercet))
 }
 
 func (r *Router) Handler() http.Handler {
