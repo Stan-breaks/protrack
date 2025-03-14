@@ -7,23 +7,31 @@ templ CoordinatorDash() {
 }
 
 templ coordinatorDashPage() {
-<div class="min-h-screen flex bg-gray-100">
+<div class="min-h-screen flex bg-gray-500">
   <!-- Sidebar Navigation -->
   @components.SideBar("Dashboard", sidebarList())
   <!-- Main Content Area -->
   <main class="flex-1 p-10" x-data="userData()" x-init="fetchUser()">
     <div class="flex justify-between items-center mb-8">
       <!-- The greeting now displays the fetched user's name -->
-      <h1 class="text-3xl font-bold text-gray-800"
+      <h1 class="text-3xl font-bold text-white"
         x-text="'Welcome, ' + (user.firstname ? user.firstname + ' ' + user.lastname : 'Guest') + '!'"></h1>
       <button @click="fetchUser()" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition">
         Refresh
       </button>
     </div>
     <!-- Additional user details -->
-    <div class="bg-white p-6 rounded shadow">
+    <div class="bg-gray-500 p-6 rounded shadow">
       <p x-text="'Email: ' + user.email"></p>
       <p x-text="'Role: ' + user.role"></p>
+    </div>
+    <div x-data="studentsData()" x-init="fetchStudents()">
+      <template x-for="student in students" :key="student.Studentid">
+        <div class="bg-gray-600 p-4 mt-2 rounded shadow">
+          <p x-text="'Name: ' + student.Firstname + ' ' + student.Lastname"></p>
+          <p x-text="'Email: ' + student.Email"></p>
+        </div>
+      </template>
     </div>
   </main>
 </div>
@@ -39,6 +47,21 @@ templ coordinatorDashPage() {
           this.user = data;
         } catch (error) {
           console.error('Error fetching user data:', error);
+        }
+      }
+    }
+  }
+  function studentsData() {
+    return {
+      students: [],
+      async fetchStudents() {
+        try {
+          const response = await fetch('/api/coordinator/students')
+          const data = await response.json();
+          this.students = data;
+          console.log(data)
+        } catch (error) {
+          console.error('Error fetching students data: ', error);
         }
       }
     }
