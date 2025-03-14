@@ -184,7 +184,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 		req := database.CreateStudentParams{
 			Email:     r.FormValue("email"),
 			Firstname: r.FormValue("firstName"),
-			Lastname:  r.FormValue("Lastname"),
+			Lastname:  r.FormValue("lastName"),
 			Password:  r.FormValue("password"),
 		}
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -210,12 +210,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to create user", http.StatusInternalServerError)
 			return
 		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"email": req.Email,
-			"exp":   time.Now().Add(h.tokenExp).Unix(),
-		})
-
-		tokenString, err := token.SignedString(h.jwtSecret)
+		tokenString, err := h.generateToken(tokenClaim{Role: role, Email: req.Email})
 		if err != nil {
 			log.Printf("Token signing error: %v", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -234,7 +229,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 		req := database.CreateCoordinatorParams{
 			Email:     r.FormValue("email"),
 			Firstname: r.FormValue("firstName"),
-			Lastname:  r.FormValue("Lastname"),
+			Lastname:  r.FormValue("lastName"),
 			Password:  r.FormValue("password"),
 		}
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -260,12 +255,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to create user", http.StatusInternalServerError)
 			return
 		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"email": req.Email,
-			"exp":   time.Now().Add(h.tokenExp).Unix(),
-		})
-
-		tokenString, err := token.SignedString(h.jwtSecret)
+		tokenString, err := h.generateToken(tokenClaim{Role: role, Email: req.Email})
 		if err != nil {
 			log.Printf("Token signing error: %v", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -284,7 +274,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 		req := database.CreateSupervisorParams{
 			Email:     r.FormValue("email"),
 			Firstname: r.FormValue("firstName"),
-			Lastname:  r.FormValue("Lastname"),
+			Lastname:  r.FormValue("lastName"),
 			Password:  r.FormValue("password"),
 		}
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -310,12 +300,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to create user", http.StatusInternalServerError)
 			return
 		}
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"email": req.Email,
-			"exp":   time.Now().Add(h.tokenExp).Unix(),
-		})
-
-		tokenString, err := token.SignedString(h.jwtSecret)
+		tokenString, err := h.generateToken(tokenClaim{Role: role, Email: req.Email})
 		if err != nil {
 			log.Printf("Token signing error: %v", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
