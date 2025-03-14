@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"nimblestack/database"
+	"nimblestack/router/middleware"
 	"strconv"
 	"time"
 
@@ -31,7 +32,7 @@ func NewUserApi(queries *database.Queries) *UserApi {
 }
 
 func (h *UserApi) GetCurrentUSer(w http.ResponseWriter, r *http.Request) {
-	claims, ok := r.Context().Value("jwtClaims").(jwt.MapClaims)
+	claims, ok := r.Context().Value(middleware.JWTClaimsKey).(jwt.MapClaims)
 	if !ok {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
