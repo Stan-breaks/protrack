@@ -100,7 +100,6 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
-		w.WriteHeader(http.StatusOK)
 		w.Header().Set("HX-Redirect", "/student/dashboard")
 	case "supervisor":
 		user, err := h.Queries.GetSupervisor(ctx, req.Email)
@@ -130,7 +129,6 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
-		w.WriteHeader(http.StatusOK)
 		w.Header().Set("HX-Redirect", "/supervisor/dashboard")
 	case "coordinator":
 		user, err := h.Queries.GetCoordinator(ctx, req.Email)
@@ -160,7 +158,6 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
-		w.WriteHeader(http.StatusOK)
 		w.Header().Set("HX-Redirect", "/coordinator/dashboard")
 	default:
 		http.Error(w, "Invalid user role", http.StatusBadRequest)
@@ -226,7 +223,6 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
-		w.WriteHeader(http.StatusOK)
 		w.Header().Set("HX-Redirect", "/student/dashboard")
 	case "coordinator":
 		req := database.CreateCoordinatorParams{
@@ -272,8 +268,7 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("HX-Redirect", "/supervisor/dashboard")
+		w.Header().Set("HX-Redirect", "/coordinator/dashboard")
 	case "supervisor":
 		req := database.CreateSupervisorParams{
 			Email:     r.FormValue("email"),
@@ -318,12 +313,9 @@ func (h *AuthApi) Reqister(w http.ResponseWriter, r *http.Request) {
 			Secure:   true,
 			SameSite: http.SameSiteLaxMode,
 		})
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("HX-Redirect", "/coordinator/dashboard")
+		w.Header().Set("HX-Redirect", "/supervisor/dashboard")
 	default:
 		http.Error(w, "Invalid user role", http.StatusBadRequest)
 		log.Printf("invalid user role: %v\n", role)
-
 	}
-
 }
