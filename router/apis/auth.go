@@ -32,6 +32,27 @@ type loginRequest struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
+type tokenClaim struct {
+	Email string
+	Role  string
+}
+
+func (h *AuthApi) generateToken(tokenClaim tokenClaim) (string, error) {
+	claims := jwt.MapClaims{
+		"email": tokenClaim.Email,
+		"role":  tokenClaim.Role,
+		"exp":   time.Now().Add(h.tokenExp).Unix(),
+		"iat":   time.Now().Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(h.jwtSecret)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
 // login
 func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -44,15 +65,15 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
+	req := loginRequest{
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
+	}
 	role := r.FormValue("role")
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
+	defer cancel()
 	switch role {
 	case "student":
-		req := loginRequest{
-			Email:    r.FormValue("email"),
-			Password: r.FormValue("password"),
-		}
-		ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-		defer cancel()
 		user, err := h.Queries.GetStudent(ctx, req.Email)
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
@@ -65,12 +86,65 @@ func (h *AuthApi) Login(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-			"email": user.Email,
-			"exp":   time.Now().Add(h.tokenExp).Unix(),
+		tokenString, err := h.generateToken(tokenClaim{Role: role, Email: req.Email})
+		if err != nil {
+			log.Printf("Token signing error: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:     "auth_token",
+			Value:    tokenString,
+			Path:     "/",
+			HttpOnly: true,
+			Expires:  time.Now().Add(h.tokenExp),
+			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
 		})
-		tokenString, err := token.SignedString(h.jwtSecret)
+		w.WriteHeader(http.StatusOK)
+	case "supervisor":
+		user, err := h.Queries.GetSupervisor(ctx, req.Email)
+		if err != nil {
+			if !errors.Is(err, sql.ErrNoRows) {
+				log.Printf("Database error: %v", err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+		tokenString, err := h.generateToken(tokenClaim{Role: role, Email: req.Email})
+		if err != nil {
+			log.Printf("Token signing error: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:     "auth_token",
+			Value:    tokenString,
+			Path:     "/",
+			HttpOnly: true,
+			Expires:  time.Now().Add(h.tokenExp),
+			Secure:   true,
+			SameSite: http.SameSiteLaxMode,
+		})
+		w.WriteHeader(http.StatusOK)
+	case "coordinator":
+		user, err := h.Queries.GetCoordinator(ctx, req.Email)
+		if err != nil {
+			if !errors.Is(err, sql.ErrNoRows) {
+				log.Printf("Database error: %v", err)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+		tokenString, err := h.generateToken(tokenClaim{Role: role, Email: req.Email})
 		if err != nil {
 			log.Printf("Token signing error: %v", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
