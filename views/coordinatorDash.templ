@@ -2,20 +2,11 @@ package views
 
 import "nimblestack/views/components"
 
-func sidebarList() []string {
-var list []string
-list = append(list, "Home")
-list = append(list, "Analytics")
-list = append(list, "Reports")
-list = append(list, "Settings")
-return list
+templ CoordinatorDash() {
+@Base("Dashboard", coordinatorDashPage())
 }
 
-templ Dash() {
-@Base("Dashboard", dashPage())
-}
-
-templ dashPage() {
+templ coordinatorDashPage() {
 <div class="min-h-screen flex bg-gray-100">
   <!-- Sidebar Navigation -->
   @components.SideBar("Dashboard", sidebarList())
