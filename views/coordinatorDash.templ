@@ -26,10 +26,16 @@ templ coordinatorDashPage() {
       <p x-text="'Role: ' + user.role"></p>
     </div>
     <div x-data="studentsData()" x-init="fetchStudents()">
-      <template x-for="student in students" :key="student.Studentid">
+      <template x-for="student in students" :key="student.Id">
         <div class="bg-gray-600 p-4 mt-2 rounded shadow">
           <p x-text="'Name: ' + student.Firstname + ' ' + student.Lastname"></p>
           <p x-text="'Email: ' + student.Email"></p>
+          <template x-if="student.Supervisor.id">
+            <p x-text="'Supervisor: ' + student.Supervisor.Firstname +' ' + student.Supervisor.Lastname"></p>
+          </template>
+          <template x-if="!student.Supervisor.id">
+            @components.Button("assign", "#")
+          </template>
         </div>
       </template>
     </div>
