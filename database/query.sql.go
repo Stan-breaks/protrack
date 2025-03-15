@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createCoordinator = `-- name: CreateCoordinator :one
@@ -36,6 +37,28 @@ func (q *Queries) CreateCoordinator(ctx context.Context, arg CreateCoordinatorPa
 		&i.Lastname,
 		&i.Email,
 		&i.Password,
+	)
+	return i, err
+}
+
+const createProject = `-- name: CreateProject :one
+INSERT INTO projects(name,description
+) VALUES (?,?)RETURNING projectid, name, description, created_at
+`
+
+type CreateProjectParams struct {
+	Name        string
+	Description sql.NullString
+}
+
+func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
+	row := q.db.QueryRowContext(ctx, createProject, arg.Name, arg.Description)
+	var i Project
+	err := row.Scan(
+		&i.Projectid,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -189,6 +212,39 @@ func (q *Queries) GetCoordinator(ctx context.Context, email string) (Coordinator
 	return i, err
 }
 
+const getCoordinatorById = `-- name: GetCoordinatorById :one
+SELECT coordinatorid, firstname, lastname, email, password FROM coordinators WHERE coordinatorId =? LIMIT 1
+`
+
+func (q *Queries) GetCoordinatorById(ctx context.Context, coordinatorid int64) (Coordinator, error) {
+	row := q.db.QueryRowContext(ctx, getCoordinatorById, coordinatorid)
+	var i Coordinator
+	err := row.Scan(
+		&i.Coordinatorid,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Email,
+		&i.Password,
+	)
+	return i, err
+}
+
+const getProject = `-- name: GetProject :one
+SELECT projectid, name, description, created_at FROM projects WHERE projectId =? LIMIT 1
+`
+
+func (q *Queries) GetProject(ctx context.Context, projectid int64) (Project, error) {
+	row := q.db.QueryRowContext(ctx, getProject, projectid)
+	var i Project
+	err := row.Scan(
+		&i.Projectid,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getStudent = `-- name: GetStudent :one
 SELECT studentid, email, firstname, lastname, password, supervisorid, projectid FROM students WHERE email =? LIMIT 1
 `
@@ -208,12 +264,48 @@ func (q *Queries) GetStudent(ctx context.Context, email string) (Student, error)
 	return i, err
 }
 
+const getStudentById = `-- name: GetStudentById :one
+SELECT studentid, email, firstname, lastname, password, supervisorid, projectid FROM students WHERE studentId =? LIMIT 1
+`
+
+func (q *Queries) GetStudentById(ctx context.Context, studentid int64) (Student, error) {
+	row := q.db.QueryRowContext(ctx, getStudentById, studentid)
+	var i Student
+	err := row.Scan(
+		&i.Studentid,
+		&i.Email,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Password,
+		&i.Supervisorid,
+		&i.Projectid,
+	)
+	return i, err
+}
+
 const getSupervisor = `-- name: GetSupervisor :one
 SELECT supervisorid, firstname, lastname, email, password FROM supervisors WHERE email =? LIMIT 1
 `
 
 func (q *Queries) GetSupervisor(ctx context.Context, email string) (Supervisor, error) {
 	row := q.db.QueryRowContext(ctx, getSupervisor, email)
+	var i Supervisor
+	err := row.Scan(
+		&i.Supervisorid,
+		&i.Firstname,
+		&i.Lastname,
+		&i.Email,
+		&i.Password,
+	)
+	return i, err
+}
+
+const getSupervisorById = `-- name: GetSupervisorById :one
+SELECT supervisorid, firstname, lastname, email, password FROM supervisors WHERE supervisorID =? LIMIT 1
+`
+
+func (q *Queries) GetSupervisorById(ctx context.Context, supervisorid int64) (Supervisor, error) {
+	row := q.db.QueryRowContext(ctx, getSupervisorById, supervisorid)
 	var i Supervisor
 	err := row.Scan(
 		&i.Supervisorid,
