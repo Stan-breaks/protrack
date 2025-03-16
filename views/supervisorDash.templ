@@ -2,11 +2,11 @@ package views
 
 import "nimblestack/views/components"
 
-templ supervisorDash() {
-@Base("Dashboard", SupervisorDashPage())
+templ SupervisorDash() {
+@Base("Dashboard", supervisorDashPage())
 }
 
-templ SupervisorDashPage() {
+templ supervisorDashPage() {
 <div class="min-h-screen flex bg-gray-700">
   <!-- Sidebar Navigation -->
   @components.SideBar("Dashboard", sidebarList())
