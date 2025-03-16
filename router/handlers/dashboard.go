@@ -15,7 +15,7 @@ func StudentDashHandler(w http.ResponseWriter, r *http.Request) {
 }
 func SupervisorDashHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		if err := views.SupervisorDashPage().Render(r.Context(), w); err != nil {
+		if err := views.SupervisorDash().Render(r.Context(), w); err != nil {
 			log.Println("Error rendering view:", err)
 		}
 	}
