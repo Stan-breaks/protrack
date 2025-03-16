@@ -31,3 +31,5 @@ INSERT INTO projects(name,description
 ) VALUES (?,?)RETURNING *;
 -- name: GetProject :one
 SELECT * FROM projects WHERE projectId =? LIMIT 1;
+-- name: AssignSupervisor :exec
+UPDATE students SET supervisorId =? WHERE studentId =?;
