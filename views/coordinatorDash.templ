@@ -30,12 +30,21 @@ templ coordinatorDashPage() {
         <div class="bg-gray-600 p-4 mt-2 rounded shadow">
           <p x-text="'Name: ' + student.Firstname + ' ' + student.Lastname"></p>
           <p x-text="'Email: ' + student.Email"></p>
-          <template x-if="student.Supervisor.id">
-            <p x-text="'Supervisor: ' + student.Supervisor.Firstname +' ' + student.Supervisor.Lastname"></p>
-          </template>
-          <template x-if="!student.Supervisor.id">
-            @components.Button("assign", "#")
-          </template>
+          <div x-data="supervisorsData()" x-init="fetchSupervisors">
+            <form hx-post="/api/coordinator/assign" hx-trigger="submit" hx-swap="outerHTML" hx-target="closest div">
+              <input type="hidden" name="studentId" :value="student.Id" />
+              <select name="supervisorId">
+                <option value="">Select Supervisor</option>
+                <template x-for="supervisor in supervisors" :key="supervisor.Id">
+                  <option x-text="supervisor.Firstname + ' ' + supervisor.Lastname" :value="supervisor.Id"></option>
+                </template>
+              </select>
+              <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition">
+                Assign
+              </button>
+              <div hx-swap-oob="true" class="text-green-500"></div>
+            </form>
+          </div>
         </div>
       </template>
     </div>
@@ -65,9 +74,22 @@ templ coordinatorDashPage() {
           const response = await fetch('/api/coordinator/students')
           const data = await response.json();
           this.students = data;
-          console.log(data)
         } catch (error) {
           console.error('Error fetching students data: ', error);
+        }
+      }
+    }
+  }
+  function supervisorsData() {
+    return {
+      supervisors: [],
+      async fetchSupervisors() {
+        try {
+          const response = await fetch('/api/coordinator/supervisors')
+          const data = await response.json();
+          this.supervisors = data;
+        } catch (error) {
+          console.error("Error with fetching supervisors data: ", error)
         }
       }
     }
