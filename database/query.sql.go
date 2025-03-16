@@ -10,6 +10,20 @@ import (
 	"database/sql"
 )
 
+const assignSupervisor = `-- name: AssignSupervisor :exec
+UPDATE students SET supervisorId =? WHERE studentId =?
+`
+
+type AssignSupervisorParams struct {
+	Supervisorid sql.NullInt64
+	Studentid    int64
+}
+
+func (q *Queries) AssignSupervisor(ctx context.Context, arg AssignSupervisorParams) error {
+	_, err := q.db.ExecContext(ctx, assignSupervisor, arg.Supervisorid, arg.Studentid)
+	return err
+}
+
 const createCoordinator = `-- name: CreateCoordinator :one
 INSERT INTO coordinators(
 email,firstName,lastName,password
