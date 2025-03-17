@@ -27,7 +27,7 @@ func NewRouter(queries *database.Queries, jwtSercet []byte) *Router {
 func (r *Router) setupRoutes() {
 	// serving static files
 	fs := http.FileServer(http.Dir("public"))
-	r.mux.Handle("/public/", http.StripPrefix("/public/", middleware.AddContentType(fs)))
+	r.mux.Handle("/static/", http.StripPrefix("/static/", middleware.AddContentType(fs)))
 
 	// serving the index page
 	r.mux.HandleFunc("/", handlers.IndexHandler)
