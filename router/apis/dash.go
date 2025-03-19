@@ -125,5 +125,5 @@ func (h *DashApi) AssignSupervisor(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error with assigning supervisor: ", err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("HX-Redirect", "/coordinator/dashboard")
 }
