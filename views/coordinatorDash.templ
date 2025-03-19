@@ -30,7 +30,9 @@ templ coordinatorDashPage() {
         <div class="bg-gray-600 p-4 mt-2 rounded shadow">
           <p x-text="'Name: ' + student.Firstname + ' ' + student.Lastname"></p>
           <p x-text="'Email: ' + student.Email"></p>
-          <form hx-post="/api/coordinator/assign" hx-trigger="submit" hx-swap="outerHTML" hx-target="closest div">
+          <div x-init="console.log('HTMX loaded:', typeof htmx !== 'undefined')"></div>
+          <form hx-ext="response-targets" :id="'assign-form-' + student.Id" hx-post="/api/coordinator/assign"
+            hx-swap="innerHTML" :hx-target-4*="'#student-' + student.Id">
             <input type="hidden" name="studentId" :value="student.Id" />
             <select name="supervisorId">
               <option value="">Select Supervisor</option>
@@ -41,8 +43,8 @@ templ coordinatorDashPage() {
             <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition">
               Assign
             </button>
-            <div hx-swap-oob="true" class="text-green-500"></div>
           </form>
+          <div class="text-green-500" :id="'student-' + student.Id"></div>
         </div>
       </template>
     </div>
