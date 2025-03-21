@@ -110,6 +110,37 @@ func (q *Queries) CreateStudent(ctx context.Context, arg CreateStudentParams) (S
 	return i, err
 }
 
+const createStudentMilestone = `-- name: CreateStudentMilestone :one
+INSERT INTO student_milestones(
+studentId,milestoneId,status,submitted_at
+) VALUES (?,?,?,?) RETURNING id, studentid, milestoneid, status, submitted_at
+`
+
+type CreateStudentMilestoneParams struct {
+	Studentid   int64
+	Milestoneid int64
+	Status      sql.NullString
+	SubmittedAt sql.NullTime
+}
+
+func (q *Queries) CreateStudentMilestone(ctx context.Context, arg CreateStudentMilestoneParams) (StudentMilestone, error) {
+	row := q.db.QueryRowContext(ctx, createStudentMilestone,
+		arg.Studentid,
+		arg.Milestoneid,
+		arg.Status,
+		arg.SubmittedAt,
+	)
+	var i StudentMilestone
+	err := row.Scan(
+		&i.ID,
+		&i.Studentid,
+		&i.Milestoneid,
+		&i.Status,
+		&i.SubmittedAt,
+	)
+	return i, err
+}
+
 const createSupervisor = `-- name: CreateSupervisor :one
 INSERT INTO supervisors(
 email,firstName,lastName,password
@@ -141,6 +172,105 @@ func (q *Queries) CreateSupervisor(ctx context.Context, arg CreateSupervisorPara
 	return i, err
 }
 
+const createSupervisorMilestone = `-- name: CreateSupervisorMilestone :one
+INSERT INTO supervisor_milestones(
+supervisorId,name,description,due_date
+) VALUES (?,?,?,?) RETURNING milestoneid, supervisorid, name, description, submission_filename, due_date, sequence_order, created_at
+`
+
+type CreateSupervisorMilestoneParams struct {
+	Supervisorid int64
+	Name         string
+	Description  sql.NullString
+	DueDate      sql.NullTime
+}
+
+func (q *Queries) CreateSupervisorMilestone(ctx context.Context, arg CreateSupervisorMilestoneParams) (SupervisorMilestone, error) {
+	row := q.db.QueryRowContext(ctx, createSupervisorMilestone,
+		arg.Supervisorid,
+		arg.Name,
+		arg.Description,
+		arg.DueDate,
+	)
+	var i SupervisorMilestone
+	err := row.Scan(
+		&i.Milestoneid,
+		&i.Supervisorid,
+		&i.Name,
+		&i.Description,
+		&i.SubmissionFilename,
+		&i.DueDate,
+		&i.SequenceOrder,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getAllProjects = `-- name: GetAllProjects :many
+SELECT projectid, name, description, created_at FROM projects
+`
+
+func (q *Queries) GetAllProjects(ctx context.Context) ([]Project, error) {
+	rows, err := q.db.QueryContext(ctx, getAllProjects)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Project
+	for rows.Next() {
+		var i Project
+		if err := rows.Scan(
+			&i.Projectid,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllStudentMilestones = `-- name: GetAllStudentMilestones :many
+SELECT id, studentid, milestoneid, status, submitted_at FROM student_milestones
+`
+
+func (q *Queries) GetAllStudentMilestones(ctx context.Context) ([]StudentMilestone, error) {
+	rows, err := q.db.QueryContext(ctx, getAllStudentMilestones)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []StudentMilestone
+	for rows.Next() {
+		var i StudentMilestone
+		if err := rows.Scan(
+			&i.ID,
+			&i.Studentid,
+			&i.Milestoneid,
+			&i.Status,
+			&i.SubmittedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAllStudents = `-- name: GetAllStudents :many
 SELECT studentid, email, firstname, lastname, password, supervisorid, projectid FROM students
 `
@@ -162,6 +292,42 @@ func (q *Queries) GetAllStudents(ctx context.Context) ([]Student, error) {
 			&i.Password,
 			&i.Supervisorid,
 			&i.Projectid,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllSupervisorMilestones = `-- name: GetAllSupervisorMilestones :many
+SELECT milestoneid, supervisorid, name, description, submission_filename, due_date, sequence_order, created_at FROM supervisor_milestones
+`
+
+func (q *Queries) GetAllSupervisorMilestones(ctx context.Context) ([]SupervisorMilestone, error) {
+	rows, err := q.db.QueryContext(ctx, getAllSupervisorMilestones)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SupervisorMilestone
+	for rows.Next() {
+		var i SupervisorMilestone
+		if err := rows.Scan(
+			&i.Milestoneid,
+			&i.Supervisorid,
+			&i.Name,
+			&i.Description,
+			&i.SubmissionFilename,
+			&i.DueDate,
+			&i.SequenceOrder,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -297,6 +463,56 @@ func (q *Queries) GetStudentById(ctx context.Context, studentid int64) (Student,
 	return i, err
 }
 
+const getStudentMilestone = `-- name: GetStudentMilestone :one
+SELECT id, studentid, milestoneid, status, submitted_at FROM student_milestones WHERE milestoneId =? LIMIT 1
+`
+
+func (q *Queries) GetStudentMilestone(ctx context.Context, milestoneid int64) (StudentMilestone, error) {
+	row := q.db.QueryRowContext(ctx, getStudentMilestone, milestoneid)
+	var i StudentMilestone
+	err := row.Scan(
+		&i.ID,
+		&i.Studentid,
+		&i.Milestoneid,
+		&i.Status,
+		&i.SubmittedAt,
+	)
+	return i, err
+}
+
+const getStudentMilestonesByStudentId = `-- name: GetStudentMilestonesByStudentId :many
+SELECT id, studentid, milestoneid, status, submitted_at FROM student_milestones WHERE studentId =?
+`
+
+func (q *Queries) GetStudentMilestonesByStudentId(ctx context.Context, studentid int64) ([]StudentMilestone, error) {
+	rows, err := q.db.QueryContext(ctx, getStudentMilestonesByStudentId, studentid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []StudentMilestone
+	for rows.Next() {
+		var i StudentMilestone
+		if err := rows.Scan(
+			&i.ID,
+			&i.Studentid,
+			&i.Milestoneid,
+			&i.Status,
+			&i.SubmittedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSupervisor = `-- name: GetSupervisor :one
 SELECT supervisorid, firstname, lastname, email, password FROM supervisors WHERE email =? LIMIT 1
 `
@@ -327,6 +543,26 @@ func (q *Queries) GetSupervisorById(ctx context.Context, supervisorid int64) (Su
 		&i.Lastname,
 		&i.Email,
 		&i.Password,
+	)
+	return i, err
+}
+
+const getSupervisorMilestone = `-- name: GetSupervisorMilestone :one
+SELECT milestoneid, supervisorid, name, description, submission_filename, due_date, sequence_order, created_at FROM supervisor_milestones WHERE milestoneId =? LIMIT 1
+`
+
+func (q *Queries) GetSupervisorMilestone(ctx context.Context, milestoneid int64) (SupervisorMilestone, error) {
+	row := q.db.QueryRowContext(ctx, getSupervisorMilestone, milestoneid)
+	var i SupervisorMilestone
+	err := row.Scan(
+		&i.Milestoneid,
+		&i.Supervisorid,
+		&i.Name,
+		&i.Description,
+		&i.SubmissionFilename,
+		&i.DueDate,
+		&i.SequenceOrder,
+		&i.CreatedAt,
 	)
 	return i, err
 }
