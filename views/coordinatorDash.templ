@@ -11,36 +11,73 @@ templ coordinatorDashPage() {
   <!-- Sidebar Navigation -->
   @components.SideBar("Dashboard", sidebarList())
   <!-- Main Content Area -->
-  <main class="flex-1 p-10" x-data="userData()" x-init="fetchUser()">
+  <main class="flex-1 p-10" x-data="data()" x-init="fetchData()">
     <div class="flex justify-between items-center mb-8">
-      <!-- The greeting now displays the fetched user's name -->
       <h1 class="text-3xl font-bold text-white"
         x-text="'Welcome, ' + (user.firstname ? user.firstname + ' ' + user.lastname : 'Guest') + '!'"></h1>
       <button @click="fetchUser()" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition">
         Refresh
       </button>
     </div>
-    <!-- Additional user details -->
-    <div class="bg-gray-500 p-6 rounded shadow">
-      <p x-text="'Email: ' + user.email"></p>
-      <p x-text="'Role: ' + user.role"></p>
+    <!-- User Details Card -->
+    <div class="bg-gray-700 p-6 rounded-lg shadow-lg mb-8">
+      <p class="text-white" x-text="'Email: ' + user.email"></p>
+      <p class="text-white" x-text="'Role: ' + user.role"></p>
     </div>
-    <div x-data="data()" x-init="fetchData()">
+    <!-- Projects Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <!-- Total Projects -->
+      <div class="bg-gray-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-gray-300 text-lg font-semibold mb-2">Total Projects</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.Total"></span>
+        </div>
+      </div>
+      <!-- On Track Projects -->
+      <div class="bg-green-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-white text-lg font-semibold mb-2">On Track</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.OnTrack"></span>
+        </div>
+      </div>
+      <!-- At Risk Projects -->
+      <div class="bg-yellow-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-white text-lg font-semibold mb-2">At Risk</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.AtRisk"></span>
+        </div>
+      </div>
+      <!-- Delayed Projects -->
+      <div class="bg-red-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-white text-lg font-semibold mb-2">Delayed</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.Delayed"></span>
+        </div>
+      </div>
+      <!-- Completed Projects -->
+      <div class="bg-blue-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+        <div class="flex flex-col items-center">
+          <span class="text-white text-lg font-semibold mb-2">Completed</span>
+          <span class="text-4xl font-bold text-white" x-text="projects.Completed"></span>
+        </div>
+      </div>
+    </div>
+    <!-- Students Section -->
+    <div class="mt-8">
       <template x-for="student in students" :key="student.Id">
         <div class="bg-gray-600 p-4 mt-2 rounded shadow">
           <p x-text="'Name: ' + student.Firstname + ' ' + student.Lastname"></p>
           <p x-text="'Email: ' + student.Email"></p>
-          <div x-init="console.log('HTMX loaded:', typeof htmx !== 'undefined')"></div>
-          <form hx-ext="response-targets" :id="'assign-form-' + student.Id" hx-post="/api/coordinator/assign"
-            hx-swap="innerHTML" :hx-target-4*="'#student-' + student.Id">
+          <form action="/api/coordinator/assign" method="POST">
             <input type="hidden" name="studentId" :value="student.Id" />
-            <select name="supervisorId">
+            <select name="supervisorId" class="mt-2 p-2 rounded">
               <option value="">Select Supervisor</option>
               <template x-for="supervisor in supervisors" :key="supervisor.Id">
                 <option x-text="supervisor.Firstname + ' ' + supervisor.Lastname" :value="supervisor.Id"></option>
               </template>
             </select>
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition">
+            <button type="submit"
+              class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500 transition ml-2">
               Assign
             </button>
           </form>
@@ -48,29 +85,32 @@ templ coordinatorDashPage() {
         </div>
       </template>
     </div>
+    <!-- No Students Message -->
+    <div x-show="students.length === 0" class="text-white mt-8">No unassigned students available.</div>
   </main>
 </div>
 <!-- AlpineJS component for fetching user data -->
 <script>
-  function userData() {
+  function data() {
     return {
       user: {},
-      async fetchUser() {
+      students: [],
+      supervisors: [],
+      projects: {
+        Total: 0,
+        OnTrack: 0,
+        AtRisk: 0,
+        Delayed: 0,
+        Completed: 0
+      },
+      async fetchData() {
         try {
-          const response = await fetch('/api/me');
+          const response = await fetch('/api/me')
           const data = await response.json();
           this.user = data;
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
-      }
-    }
-  }
-  function data() {
-    return {
-      students: [],
-      supervisors: [],
-      async fetchData() {
         try {
           const response = await fetch('/api/coordinator/students')
           const data = await response.json();
@@ -84,6 +124,13 @@ templ coordinatorDashPage() {
           this.supervisors = data;
         } catch (error) {
           console.error("Error with fetching supervisors data: ", error)
+        }
+        try {
+          const response = await fetch('/api/coordinator/projects')
+          const data = await response.json();
+          this.projects = data;
+        } catch (error) {
+          console.error("Error with fetching projects data: ", error)
         }
       }
     }
