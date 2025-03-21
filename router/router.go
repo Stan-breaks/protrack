@@ -46,6 +46,7 @@ func (r *Router) setupRoutes() {
 	r.mux.HandleFunc("/api/me", middleware.CheckAuth(userHandler.GetCurrentUSer, r.jwtSercet))
 	dashHandler := apis.NewDashApi(r.queries)
 	r.mux.HandleFunc("/api/coordinator/students", middleware.CheckAuth(dashHandler.GetAllStudents, r.jwtSercet))
+	r.mux.HandleFunc("/api/coordinator/projects", middleware.CheckAuth(dashHandler.GetProjectsData, r.jwtSercet))
 	r.mux.HandleFunc("/api/coordinator/supervisors", middleware.CheckAuth(dashHandler.GetAllSupervisors, r.jwtSercet))
 	r.mux.HandleFunc("/api/coordinator/assign", middleware.CheckAuth(dashHandler.AssignSupervisor, r.jwtSercet))
 }
