@@ -31,5 +31,25 @@ INSERT INTO projects(name,description
 ) VALUES (?,?)RETURNING *;
 -- name: GetProject :one
 SELECT * FROM projects WHERE projectId =? LIMIT 1;
+-- name: GetAllProjects :many
+SELECT * FROM projects;
 -- name: AssignSupervisor :exec
 UPDATE students SET supervisorId =? WHERE studentId =?;
+-- name: CreateSupervisorMilestone :one
+INSERT INTO supervisor_milestones(
+supervisorId,name,description,due_date
+) VALUES (?,?,?,?) RETURNING *;
+-- name: GetSupervisorMilestone :one
+SELECT * FROM supervisor_milestones WHERE milestoneId =? LIMIT 1;
+-- name: GetAllSupervisorMilestones :many
+SELECT * FROM supervisor_milestones;
+-- name: CreateStudentMilestone :one
+INSERT INTO student_milestones(
+studentId,milestoneId,status,submitted_at
+) VALUES (?,?,?,?) RETURNING *;
+-- name: GetStudentMilestone :one
+SELECT * FROM student_milestones WHERE milestoneId =? LIMIT 1;
+-- name: GetAllStudentMilestones :many
+SELECT * FROM student_milestones;
+-- name: GetStudentMilestonesByStudentId :many
+SELECT * FROM student_milestones WHERE studentId =?;
