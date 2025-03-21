@@ -35,6 +35,14 @@ type safeSupervisor struct {
 	Email     string
 }
 
+type projectsData struct {
+	Total     int
+	OnTrack   int
+	Delayed   int
+	AtRisk    int
+	Completed int
+}
+
 func (h *DashApi) GetAllStudents(w http.ResponseWriter, r *http.Request) {
 	var safeStudents []safeStudent
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
@@ -126,4 +134,48 @@ func (h *DashApi) AssignSupervisor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("HX-Redirect", "/coordinator/dashboard")
+}
+
+func (h *DashApi) GetProjectsData(w http.ResponseWriter, r *http.Request) {
+	var projectsData projectsData
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+	projects, err := h.Queries.GetAllProjects(ctx)
+	if err != nil {
+		http.Error(w, "Error with getting projects", http.StatusInternalServerError)
+		log.Println("Error with getting projects: ", err)
+		return
+	}
+	projectsData.Total = len(projects)
+	studentMilestones, err := h.Queries.GetAllStudentMilestones(ctx)
+	students := make(map[int64]bool)
+	for _, studentMilestone := range studentMilestones {
+		if !students[studentMilestone.Studentid] {
+			switch studentMilestone.Status {
+			case sql.NullString{String: "on track", Valid: true}:
+				projectsData.OnTrack++
+			case sql.NullString{String: "delayed", Valid: true}:
+				projectsData.Delayed++
+			case sql.NullString{String: "at risk", Valid: true}:
+				projectsData.AtRisk++
+			case sql.NullString{String: "completed", Valid: true}:
+				projectsData.Completed++
+			}
+			students[studentMilestone.Studentid] = true
+		} else {
+
+		}
+	}
+
+	if err != nil {
+		http.Error(w, "Error with getting student milestones", http.StatusInternalServerError)
+		log.Println("Error with getting student milestones: ", err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(projectsData); err != nil {
+		http.Error(w, `{"error": "Failed to encode response"}`, http.StatusInternalServerError)
+		log.Printf("Failed to encode response: %v", err)
+	}
 }
